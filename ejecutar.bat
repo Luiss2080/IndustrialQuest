@@ -20,9 +20,9 @@ python IndustrialQuest.py
 if %errorlevel% neq 0 (
     echo.
     echo [AVISO] Hubo un problema al arrancar el juego.
-    echo Intentando instalar o actualizar la dependencia Pygame mediante pip...
+    echo Intentando instalar o actualizar la dependencia Pygame-CE mediante pip...
     echo.
-    python -m pip install pygame
+    python -m pip install pygame-ce
     if "%errorlevel%"=="0" (
         echo.
         echo [INFO] Pygame se ha instalado con exito. Iniciando el juego de nuevo...
