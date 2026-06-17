@@ -1,14 +1,14 @@
-# 🎮 Grammar Adventure
+# 🎮 IndustrialQuest
 
-🎓 Juego educativo interactivo desarrollado con Python y Pygame para aprender gramática inglesa de manera divertida 🎯📚, featuring 4 capítulos temáticos (Simple Past, Comparatives, Present Perfect, Future) 📖⚡ con sistema de puntuación progresivo 🏆, velocidad adaptativa 🚀 y feedback inmediato 🎵. Interfaz pixel art retro 🎨 con mecánicas de typing game 💨 optimizada para el aprendizaje interactivo y la mejora de habilidades lingüísticas 🌟.
+🎓 Juego educativo interactivo desarrollado con Python y Pygame para aprender gramática inglesa de manera divertida 🎯📚. Cuenta con 4 capítulos temáticos (Simple Past, Comparatives, Present Perfect, Future) 📖⚡ con un sistema de puntuación progresivo 🏆, velocidad adaptativa 🚀 y retroalimentación inmediata por efectos de sonido 🎵. Posee una interfaz con estética pixel art retro 🎨 y mecánicas de juego tipo "typing game" 💨 optimizada para la mejora de habilidades lingüísticas 🌟.
 
 <div align="center">
 
-![Grammar Adventure Logo](Grammar%20Adventure/Material/Logo.jpg)
+![IndustrialQuest Logo](recursos/Logo.jpg)
 
 [![Python](https://img.shields.io/badge/Python-3.8+-blue.svg)](https://www.python.org/)
 [![Pygame](https://img.shields.io/badge/Pygame-2.0+-green.svg)](https://www.pygame.org/)
-[![License](https://img.shields.io/badge/License-MIT-yellow.svg)](#license)
+[![License](https://img.shields.io/badge/License-MIT-yellow.svg)](#licencia)
 [![Game](https://img.shields.io/badge/Game-Educational-purple.svg)](#)
 
 [🎯 Características](#-características) • [🚀 Instalación](#-instalación) • [🎮 Cómo Jugar](#-cómo-jugar) • [📚 Temas](#-temas-disponibles) • [🛠️ Desarrollo](#️-desarrollo)
@@ -19,84 +19,103 @@
 
 ## 📋 Descripción
 
-**Grammar Adventure** es un juego educativo desarrollado en Python con Pygame que te ayuda a mejorar tus habilidades en gramática inglesa de manera divertida e interactiva. El juego presenta diferentes niveles temáticos donde debes completar oraciones con la palabra correcta antes de que desaparezcan de la pantalla.
+**IndustrialQuest** es un juego educativo desarrollado en Python con Pygame que ayuda a los estudiantes a perfeccionar sus conocimientos de gramática en inglés. El jugador debe completar frases con la palabra correcta que falta en cada oración antes de que estas se desplacen fuera de la pantalla.
 
 ### 🎯 Características
 
-- 🎨 **Interfaz gráfica atractiva** con estilo pixel art
-- 🎵 **Efectos de sonido inmersivos** para cada acción
-- 📈 **Sistema de puntuación progresivo** con dificultad incremental
-- ❤️ **Sistema de vidas** con 3 oportunidades por partida
-- 🎪 **4 capítulos temáticos** diferentes de gramática inglesa
-- ⚡ **Velocidad adaptativa** que aumenta con tu progreso
-- 🏆 **Feedback inmediato** con sonidos de éxito y error
+- 🎨 **Interfaz gráfica atractiva** con estilo retro pixel art.
+- 🎵 **Efectos de sonido inmersivos** para respuestas correctas, fallos, menús y pantallas de estado.
+- 📈 **Sistema de puntuación progresivo** con dificultad incremental.
+- ❤️ **Sistema de vidas** con 3 corazones (oportunidades) por partida.
+- 🎪 **4 capítulos temáticos** enfocados en distintas áreas gramaticales clave del inglés.
+- ⚡ **Velocidad adaptativa** de caída de frases que se incrementa conforme aumenta el puntaje.
+- 🏆 **Feedback inmediato** para potenciar el aprendizaje continuo.
+
+---
 
 ## 🚀 Instalación
 
 ### Prerrequisitos
 
-- Python 3.8 o superior
-- pip (gestor de paquetes de Python)
+- Python 3.8 o superior.
+- Administrador de paquetes de Python (`pip`).
 
 ### Pasos de instalación
 
-1. **Clona el repositorio**
+1. **Clona el repositorio u obtén los archivos**
    ```bash
-   git clone https://github.com/tu-usuario/grammar-adventure.git
-   cd grammar-adventure
+   git clone https://github.com/tu-usuario/industrial-quest.git
+   cd industrial-quest
    ```
 
-2. **Instala las dependencias**
+2. **Instala las dependencias necesarias**
    ```bash
    pip install pygame
    ```
 
 3. **Ejecuta el juego**
    ```bash
-   python "Grammar Adventure.py"
+   python IndustrialQuest.py
    ```
 
 ### 📦 Estructura del proyecto
 
-```
-Grammar Adventure/
-├── Grammar Adventure.py          # Archivo principal del juego
-├── Font/                        # Fuentes personalizadas
+El proyecto ha sido refactorizado con una arquitectura modular y limpia para facilitar su escalabilidad:
+
+```text
+IndustrialQuest/
+├── IndustrialQuest.py            # Punto de entrada principal
+├── fuentes/                      # Fuentes tipográficas retro
 │   ├── Pixelletters-RLm3.ttf
 │   └── Pixellettersfull-BnJ5.ttf
-├── Material/                    # Recursos del juego
-│   ├── *.png                   # Imágenes y sprites
-│   ├── *.jpg                   # Fondos y gráficos
-│   └── *.wav                   # Efectos de sonido
-└── README.md                   # Este archivo
+├── recursos/                     # Activos multimedia (imágenes y audios)
+│   ├── *.png, *.jpg, *.wav
+│   └── ...
+├── src/                          # Módulos del motor y lógica
+│   ├── constantes.py             # Configuración y valores globales
+│   ├── datos_juego.py            # Base de datos de capítulos y frases
+│   ├── administrador_recursos.py  # Carga y almacenamiento en caché de activos
+│   ├── frase.py                  # Clase representativa de la entidad frase
+│   ├── motor.py                  # Lógica del ciclo de juego (game loop) y estados
+│   ├── pantalla.py               # Clase abstracta base para pantallas
+│   ├── pantalla_menu.py          # Menú principal y animación del logo
+│   ├── pantalla_reglas.py        # Visualización de instrucciones
+│   ├── pantalla_niveles.py       # Menú de selección de capítulos
+│   ├── pantalla_juego.py         # Lógica interna del gameplay activo
+│   └── pantalla_fin.py           # Pantalla de Game Over
+└── README.md                     # Este archivo
 ```
+
+---
 
 ## 🎮 Cómo Jugar
 
 ### 🎯 Objetivo
-Completa las oraciones escribiendo la palabra correcta antes de que la frase salga de la pantalla.
+Escribe y completa las oraciones en pantalla con la palabra gramaticalmente correcta antes de que la frase cruce el borde derecho.
 
 ### 🕹️ Controles
-- **Teclado**: Escribe la palabra faltante
-- **Backspace**: Borra caracteres
-- **ESC**: Salir del juego
+- **Teclado**: Escribe directamente la palabra que falta.
+- **Retroceso (Backspace)**: Borra letras ingresadas.
+- **ESC**: Sale de la partida actual al menú de selección / finalización.
 
 ### 📋 Reglas del juego
 
-1. 📝 **Aparecerá una frase con una palabra faltante** (marcada con "_")
-2. ⌨️ **Escribe la palabra correcta** para ganar puntos
-3. 📈 **A medida que aumenta tu puntuación**, aparecerán más frases simultáneamente
-4. ⚡ **La velocidad aumenta** progresivamente con tu puntaje
-5. 🚫 **No se permiten contracciones** (usa la forma completa)
-6. ❤️ **Pierdes una vida** por cada frase que no completes
-7. 💀 **El juego termina** cuando te quedas sin vidas
+1. 📝 **Frases incompletas**: Aparecerá una frase con una palabra faltante representada por un guion bajo (`_`).
+2. ⌨️ **Escritura activa**: Digita la respuesta correcta para sumar puntos.
+3. 📈 **Progresión simultánea**: Conforme tu puntaje aumente, aparecerá un mayor número de frases flotando en pantalla.
+4. ⚡ **Velocidad dinámica**: La velocidad del texto aumentará progresivamente de acuerdo con tu puntuación (`velocidad = 0.4 + puntuacion/50`).
+5. 🚫 **Sin contracciones**: Se debe ingresar la forma completa de las palabras (ej. *will not* en lugar de *won't*).
+6. ❤️ **Pérdida de vidas**: Si una frase escapa de la pantalla, perderás un corazón de vida.
+7. 💀 **Fin de la partida**: Al perder los 3 corazones de vida, el juego terminará.
+
+---
 
 ## 📚 Temas Disponibles
 
 <details>
 <summary><strong>🕐 Simple Past (Pasado Simple)</strong></summary>
 
-- **Enfoque**: Verbos regulares e irregulares en pasado
+- **Enfoque**: Verbos regulares e irregulares en tiempo pasado.
 - **Ejemplos**: 
   - "She _ the tree (climb)" → "climbed"
   - "Mary _ off the tree (fall)" → "fell"
@@ -106,7 +125,7 @@ Completa las oraciones escribiendo la palabra correcta antes de que la frase sal
 <details>
 <summary><strong>📊 Comparatives and Superlatives (Comparativos y Superlativos)</strong></summary>
 
-- **Enfoque**: Formas comparativas y superlativas de adjetivos
+- **Enfoque**: Adjetivos comparativos y superlativos.
 - **Ejemplos**: 
   - "La Paz is _ _ Santa Cruz (cold)" → "colder than"
   - "Mt. Everest is _ _ mountain in the world (tall)" → "the tallest"
@@ -116,7 +135,7 @@ Completa las oraciones escribiendo la palabra correcta antes de que la frase sal
 <details>
 <summary><strong>✅ Present Perfect (Presente Perfecto)</strong></summary>
 
-- **Enfoque**: Estructura have/has + participio pasado
+- **Enfoque**: Estructuras del presente perfecto con auxiliares *have/has* y participios.
 - **Ejemplos**: 
   - "She _ _ to the movies (go)" → "has gone"
   - "I _ _ living in Bolivia this year (be)" → "have been"
@@ -126,105 +145,46 @@ Completa las oraciones escribiendo la palabra correcta antes de que la frase sal
 <details>
 <summary><strong>🔮 Future with will / going to (Futuro)</strong></summary>
 
-- **Enfoque**: Expresiones de futuro con "will" y "going to"
+- **Enfoque**: Oraciones futuras utilizando *will* y la estructura *going to*.
 - **Ejemplos**: 
   - "I _ _ _ to Bolivia next year (won't/go)" → "will not go"
   - "She is _ _ _ a new business (go/start)" → "going to start"
 - **Dificultad**: ⭐⭐⭐⭐⭐
 </details>
 
-## 🎨 Capturas de Pantalla
-
-<div align="center">
-
-### 🏠 Menú Principal
-*Interfaz de inicio con animación del logo*
-
-### 📖 Pantalla de Reglas
-*Explicación visual de las mecánicas del juego*
-
-### 🎯 Gameplay
-*Acción en tiempo real con múltiples frases*
-
-### 📊 Selección de Capítulos
-*Elige tu tema de gramática favorito*
-
-</div>
+---
 
 ## 🛠️ Desarrollo
 
-### 🔧 Tecnologías utilizadas
+### 🔧 Tecnologías Utilizadas
 
-- **Python 3.8+**: Lenguaje de programación principal
-- **Pygame 2.0+**: Framework para desarrollo de juegos 2D
-- **Pixel Art**: Estilo gráfico retro
+- **Python 3.8+**: Lenguaje estructurado principal.
+- **Pygame 2.0+**: Motor multimedia para el renderizado gráfico 2D e interacción de audios.
+- **Pixel Art**: Gráficos y fondos temáticos retro.
 
-### 🏗️ Arquitectura del código
+### 🏗️ Arquitectura de Software
 
-```python
-# Estructura principal
-├── Inicialización (pygame, mixer, display)
-├── Configuración de recursos (sonidos, imágenes, fuentes)
-├── Sistema de temas y frases
-├── Funciones principales:
-│   ├── ventana_principal()      # Menú de inicio
-│   ├── mostrar_reglas()         # Pantalla de instrucciones
-│   ├── menu_niveles()           # Selección de capítulos
-│   ├── bucle_juego()            # Loop principal del juego
-│   ├── nueva_frase()            # Generador de contenido
-│   └── game_over()              # Pantalla final
-```
+El videojuego ha sido reestructurado utilizando una arquitectura orientada a objetos basada en **Patrón de Estados (State Pattern)** mediante un Gestor de Pantallas:
 
-### 🎮 Mecánicas del juego
-
-- **Sistema de puntuación**: +1 punto por respuesta correcta
-- **Sistema de vidas**: 3 vidas iniciales, -1 por frase perdida
-- **Velocidad dinámica**: `velocidad = 0.4 + (puntuacion/50)`
-- **Frases simultáneas**: `cantidad = (puntuacion // 8) + 1`
-- **Colores aleatorios**: Cada frase tiene un color único
-
-## 🤝 Contribuir
-
-¡Las contribuciones son bienvenidas! Si deseas mejorar el juego:
-
-1. 🍴 Fork el proyecto
-2. 🌱 Crea una rama para tu feature (`git checkout -b feature/AmazingFeature`)
-3. 💾 Commit tus cambios (`git commit -m 'Add some AmazingFeature'`)
-4. 📤 Push a la rama (`git push origin feature/AmazingFeature`)
-5. 🔄 Abre un Pull Request
-
-### 💡 Ideas para contribuir
-
-- [ ] Agregar más temas de gramática
-- [ ] Implementar sistema de puntuación máxima
-- [ ] Añadir modo multijugador
-- [ ] Crear sistema de logros
-- [ ] Mejorar efectos visuales
-- [ ] Traducir a otros idiomas
-
-## 📝 License
-
-Este proyecto está bajo la Licencia MIT. Consulta el archivo `LICENSE` para más detalles.
-
-## 👥 Autores
-
-- **Tu Nombre** - *Desarrollo inicial* - [Tu GitHub](https://github.com/tu-usuario)
-
-## 🙏 Agradecimientos
-
-- 🎨 Recursos gráficos en estilo pixel art
-- 🎵 Efectos de sonido para una experiencia inmersiva
-- 📚 Contenido educativo de gramática inglesa
-- 🎮 Comunidad de Pygame por el framework
+- **MotorJuego**: Maneja el ciclo principal, el tiempo y la transición entre estados.
+- **AdministradorRecursos**: Implementa una caché en memoria para las texturas e instrumentos sonoros.
+- **FraseJuego**: Entidad independiente con soporte de conversión y lectura polimórfica.
+- **Pantalla**: Plantilla abstracta para las diferentes fases del menú y del juego.
 
 ---
 
-<div align="center">
+## 🤝 Contribuir
 
-**¿Te gustó el proyecto? ¡Dale una ⭐ estrella!**
+Si deseas proponer mejoras al juego:
 
-[🐛 Reportar Bug](https://github.com/tu-usuario/grammar-adventure/issues) • [💡 Solicitar Feature](https://github.com/tu-usuario/grammar-adventure/issues) • [💬 Discusiones](https://github.com/tu-usuario/grammar-adventure/discussions)
+1. Realiza un Fork del proyecto.
+2. Crea una rama para tu característica (`git checkout -b feature/AmazingFeature`).
+3. Realiza commit de tus cambios (`git commit -m 'Añadir nueva mejora'`).
+4. Haz Push a la rama (`git push origin feature/AmazingFeature`).
+5. Abre un Pull Request.
 
-**¡Aprende gramática inglesa jugando! 🎓🎮**
+---
 
-</div>
+## 📝 Licencia
+
+Este proyecto se distribuye bajo la Licencia MIT. Consulta el archivo `LICENSE` para más detalles.
