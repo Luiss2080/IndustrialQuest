@@ -23,14 +23,14 @@ if %errorlevel% neq 0 (
     echo Intentando instalar o actualizar la dependencia Pygame-CE mediante pip...
     echo.
     python -m pip install pygame-ce
-    if "%errorlevel%"=="0" (
+    if not errorlevel 1 (
         echo.
         echo [INFO] Pygame se ha instalado con exito. Iniciando el juego de nuevo...
         echo.
         python IndustrialQuest.py
     ) else (
         echo [ERROR] No se pudo instalar Pygame de forma automatica.
-        echo Por favor, ejecuta en consola: pip install pygame
+        echo Por favor, ejecuta en consola: pip install pygame-ce
         echo.
         pause
     )
