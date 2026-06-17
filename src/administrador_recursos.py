@@ -36,10 +36,19 @@ class AdministradorRecursos:
     def obtener_ruta_recurso(self, nombre_archivo):
         """
         Resuelve y retorna la ruta absoluta o relativa correcta del archivo en el disco,
-        aplicando los mapeos de compatibilidad si es necesario.
+        aplicando los mapeos de compatibilidad si es necesario y enrutándolo
+        a la subcarpeta correspondiente ('imagenes' o 'sonidos').
         """
         nombre_real = self._mapeo_nombres.get(nombre_archivo, nombre_archivo)
-        return os.path.join(DIRECTORIO_RECURSOS, nombre_real)
+        extension = os.path.splitext(nombre_real)[1].lower()
+        
+        # Enrutar según la extensión del archivo real
+        if extension in (".wav", ".mp3", ".ogg"):
+            subcarpeta = "sonidos"
+        else:
+            subcarpeta = "imagenes"
+            
+        return os.path.join(DIRECTORIO_RECURSOS, subcarpeta, nombre_real)
 
     def obtener_imagen(self, nombre):
         """
