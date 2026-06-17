@@ -16,7 +16,7 @@ COLOR_AZUL = (27, 19, 66)
 
 # Configuración del motor de texto (fuente)
 TAMAÑO_FUENTE = 35
-RUTA_FUENTE = os.path.join("fuentes", "Pixellettersfull-BnJ5.ttf")
+RUTA_FUENTE = os.path.join("fonts", "Pixellettersfull-BnJ5.ttf")
 
 # Directorio donde se almacenan los recursos multimedia
 DIRECTORIO_RECURSOS = "recursos"
