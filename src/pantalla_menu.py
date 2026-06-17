@@ -83,6 +83,4 @@ class PantallaMenu(Pantalla):
             superficie.blit(self.texto_reglas, (self.boton_reglas.x + 60, self.boton_reglas.y + 10))
             # Dibujar el texto centrado del botón "Play the Game"
             superficie.blit(self.texto_niveles, (self.boton_niveles.x + 12, self.boton_niveles.y + 10))
-window_width = 800
-window_height = 600
-COLOR_AZUL = (27, 19, 66)
+
