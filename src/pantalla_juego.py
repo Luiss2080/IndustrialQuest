@@ -68,6 +68,14 @@ class PantallaJuego(Pantalla):
         self.sonido_nivel.set_volume(self.motor.volumen_musica)
         self.sonido_nivel.play(-1)
         
+        # Rotación automática de música
+        self.tiempo_cambio_musica = 90.0 * 1000  # 90 segundos
+        self.tiempo_ultima_musica = pygame.time.get_ticks()
+        try:
+            self.indice_musica_actual = int(self.motor.tema_actual.split(" ")[1].split(":")[0]) - 1
+        except Exception:
+            self.indice_musica_actual = 0
+        
         # Captura de tiempo inicial
         self.motor.tiempo_inicio = pygame.time.get_ticks()
         self.tiempo_pausado_acumulado = 0
