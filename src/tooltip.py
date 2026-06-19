@@ -16,11 +16,8 @@ class BilingualTooltip:
         self.texto_en = texto_en
         self.texto_es = texto_es
         
-        # Inicializar fuente para el tooltip (tamaño más pequeño y legible)
-        try:
-            self.fuente = pygame.font.Font(RUTA_FUENTE, 20)
-        except Exception:
-            self.fuente = pygame.font.SysFont("Arial", 16)
+        # Usar la fuente de sistemas del motor para asegurar soporte de acentos y caracteres especiales
+        self.fuente = self.motor.fuente_sistemas
 
     def dibujar(self, superficie, x, y):
         """
