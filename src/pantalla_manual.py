@@ -5,21 +5,22 @@ Pantalla del Manual de Operaciones para IndustrialQuest: Woodwork Edition.
 import pygame
 from src.constantes import COLOR_NEGRO, ANCHO_PANTALLA, ALTO_PANTALLA
 from src.pantalla import Pantalla
+from src.tooltip import BilingualTooltip
 
 class PantallaManual(Pantalla):
     """
-    Muestra las instrucciones detalladas del juego y las reglas gramaticales de cada nivel.
-    Renderea un manual estilo papel antiguo/madera con botones de navegación.
+    Manual instructivo de alto contraste que explica los turnos y sus reglas.
+    Equipado con tooltips flotantes bilingües de ayuda.
     """
     def __init__(self, motor):
         super().__init__(motor)
         
         # Colores
-        self.color_fondo = (35, 25, 20)
-        self.color_pergamino = (240, 220, 180)
-        self.color_pergamino_borde = (190, 160, 110)
-        self.color_texto = (40, 30, 20)
-        self.color_titulo = (120, 40, 10)
+        self.color_fondo = (30, 22, 18)
+        self.color_pergamino = (245, 235, 215)        # Crema claro (alto contraste)
+        self.color_pergamino_borde = (160, 120, 80)
+        self.color_texto = (35, 25, 15)               # Carbón oscuro legible
+        self.color_titulo = (120, 30, 10)              # Rojo oscuro llamativo
         
         self.boton_img = self.motor.recursos.obtener_imagen("Boton.png")
         self.boton_img = pygame.transform.scale(self.boton_img, (160, 46))
@@ -45,6 +46,16 @@ class PantallaManual(Pantalla):
             "  * Shift 4 (Dispatch): Mixed grammar review & questions."
         ]
 
+        # Configurar rect del papel manual para colisión de tooltip
+        self.rect_manual = pygame.Rect(40, 30, ANCHO_PANTALLA - 80, ALTO_PANTALLA - 100)
+        
+        # Tooltips bilingües
+        self.tooltip_manual = BilingualTooltip(self.motor, "Review shift operating rules and guidelines.", "Revisa las reglas de turno y las directrices.")
+        self.tooltip_volver = BilingualTooltip(self.motor, "Return to Main Menu.", "Volver al Menú Principal.")
+        
+        self.volver_hovered = False
+        self.manual_hovered = False
+
     def manejar_eventos(self, eventos):
         for evento in eventos:
             if evento.type == pygame.MOUSEBUTTONDOWN:
@@ -55,23 +66,20 @@ class PantallaManual(Pantalla):
                         self.motor.cambiar_pantalla(PantallaMenu(self.motor))
 
     def actualizar(self, dt):
-        pass
+        pos_mouse = pygame.mouse.get_pos()
+        self.volver_hovered = self.boton_volver.collidepoint(pos_mouse)
+        self.manual_hovered = self.rect_manual.collidepoint(pos_mouse) and not self.volver_hovered
 
     def dibujar(self, superficie):
         # Rellenar fondo carbón
         superficie.fill(self.color_fondo)
         
-        # Dibujar marco de pergamino/madera rústica central
-        ancho_manual = ANCHO_PANTALLA - 80
-        alto_manual = ALTO_PANTALLA - 100
-        rect_manual = pygame.Rect(40, 30, ancho_manual, alto_manual)
-        
         # Sombra del manual
-        pygame.draw.rect(superficie, (15, 10, 5), (45, 35, ancho_manual, alto_manual), border_radius=8)
+        pygame.draw.rect(superficie, (10, 7, 5), (self.rect_manual.x + 5, self.rect_manual.y + 5, self.rect_manual.width, self.rect_manual.height), border_radius=8)
         # Relleno de papel pergamino
-        pygame.draw.rect(superficie, self.color_pergamino, rect_manual, border_radius=8)
+        pygame.draw.rect(superficie, self.color_pergamino, self.rect_manual, border_radius=8)
         # Bordes rústicos
-        pygame.draw.rect(superficie, self.color_pergamino_borde, rect_manual, 6, border_radius=8)
+        pygame.draw.rect(superficie, self.color_pergamino_borde, self.rect_manual, 6, border_radius=8)
 
         # Dibujar texto de las instrucciones
         y = 55
@@ -86,10 +94,7 @@ class PantallaManual(Pantalla):
             y += 32
 
         # Dibujar botón volver (Clock In)
-        # Hover check
-        mouse_pos = pygame.mouse.get_pos()
-        offset = 2 if self.boton_volver.collidepoint(mouse_pos) else 0
-        
+        offset = 2 if self.volver_hovered else 0
         rect_volver_dibujo = self.boton_volver.copy()
         rect_volver_dibujo.x += offset
         rect_volver_dibujo.y += offset
@@ -98,3 +103,10 @@ class PantallaManual(Pantalla):
         tx = rect_volver_dibujo.centerx - self.texto_volver.get_width() // 2
         ty = rect_volver_dibujo.centery - self.texto_volver.get_height() // 2
         superficie.blit(self.texto_volver, (tx, ty))
+
+        # Dibujar tooltips flotantes
+        mx, my = pygame.mouse.get_pos()
+        if self.volver_hovered:
+            self.tooltip_volver.dibujar(superficie, mx, my)
+        elif self.manual_hovered:
+            self.tooltip_manual.dibujar(superficie, mx, my)
