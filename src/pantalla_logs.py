@@ -29,11 +29,8 @@ class PantallaLogs(Pantalla):
         self.boton_volver = self.boton_img.get_rect(bottomright=(ANCHO_PANTALLA - 30, ALTO_PANTALLA - 30))
         self.texto_volver = self.motor.fuente.render("Clock In", True, COLOR_NEGRO)
 
-        # Cargar fuente de tabla pequeña para evitar overflow
-        try:
-            self.fuente_tabla = pygame.font.Font(RUTA_FUENTE, 20)
-        except Exception:
-            self.fuente_tabla = pygame.font.SysFont("Arial", 16)
+        # Usar la fuente de sistemas del motor para asegurar compatibilidad de caracteres y emojis
+        self.fuente_tabla = self.motor.fuente_sistemas
 
         # Rect del papel para tooltip
         self.rect_papel = pygame.Rect(70, 75, ANCHO_PANTALLA - 140, ALTO_PANTALLA - 170)
@@ -127,7 +124,7 @@ class PantallaLogs(Pantalla):
         x_der = x_divisor + 20
         y_item_der = self.rect_papel.top + 65
         
-        lbl_records = self.motor.fuente.render("HIGH SCORES 🏆", True, (170, 110, 20))
+        lbl_records = self.motor.fuente_sistemas_grande.render("HIGH SCORES 🏆", True, (170, 110, 20))
         superficie.blit(lbl_records, (x_der, y_item_der))
         y_item_der += 35
         
