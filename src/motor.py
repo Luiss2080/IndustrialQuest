@@ -29,6 +29,10 @@ class MotorJuego:
             print(f"Error al cargar la fuente en {RUTA_FUENTE}. Usando fuente por defecto: {e}")
             self.fuente = pygame.font.SysFont("Arial", TAMAÑO_FUENTE)
 
+        # Fuentes del sistema para soportar acentos y símbolos sin errores de renderizado
+        self.fuente_sistemas = pygame.font.SysFont("Calibri", 20, bold=True)
+        self.fuente_sistemas_grande = pygame.font.SysFont("Calibri", 26, bold=True)
+
         # Reloj de Pygame para controlar los fotogramas por segundo (FPS)
         self.reloj = pygame.time.Clock()
 
