@@ -53,6 +53,24 @@
             "time_taken": 3,
             "wpm": 0,
             "status": "FAILED"
+        },
+        {
+            "timestamp": "2026-06-19 18:15",
+            "nivel": "Level 1: Reception Area",
+            "score": 0,
+            "accuracy": 0.0,
+            "time_taken": 9,
+            "wpm": 0,
+            "status": "FAILED"
+        },
+        {
+            "timestamp": "2026-06-19 18:15",
+            "nivel": "Level 4: Quality Control & Dispatch",
+            "score": 0,
+            "accuracy": 0.0,
+            "time_taken": 15,
+            "wpm": 0,
+            "status": "FAILED"
         }
     ],
     "volumen_musica": 0.5,
