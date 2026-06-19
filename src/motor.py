@@ -35,6 +35,14 @@ class MotorJuego:
         # Inicializar el administrador de recursos (imágenes y sonidos en caché)
         self.recursos = AdministradorRecursos()
 
+        # Configuración persistente y logs
+        self.historico_logs = []
+        self.volumen_musica = 0.5
+        self.volumen_sfx = 0.7
+        self.velocidad_ajustada = 1.0
+        self.niveles_completados = []
+        self.cargar_datos()
+
         # Inicialización del estado y estadísticas globales compartidas
         self.puntuacion = 0
         self.vidas = 3
@@ -45,9 +53,56 @@ class MotorJuego:
         self.velocidad_palabra = 0.4
         self.frases_recientes = []
 
+        # Estadísticas de tecleo detalladas
+        self.pulsaciones_correctas = 0
+        self.pulsaciones_incorrectas = 0
+
         # Pantalla activa y flag de control de bucle
         self.pantalla_activa = None
         self.corriendo = True
+
+    def cargar_datos(self):
+        import json
+        import os
+        self.ruta_datos = "production_logs.json"
+        if os.path.exists(self.ruta_datos):
+            try:
+                with open(self.ruta_datos, "r", encoding="utf-8") as f:
+                    datos = json.load(f)
+                    self.historico_logs = datos.get("logs", [])
+                    self.volumen_musica = datos.get("volumen_musica", 0.5)
+                    self.volumen_sfx = datos.get("volumen_sfx", 0.7)
+                    self.velocidad_ajustada = datos.get("velocidad_ajustada", 1.0)
+                    self.niveles_completados = datos.get("niveles_completados", [])
+            except Exception as e:
+                print(f"Error al cargar logs: {e}")
+
+    def guardar_datos(self):
+        import json
+        datos = {
+            "logs": self.historico_logs,
+            "volumen_musica": self.volumen_musica,
+            "volumen_sfx": self.volumen_sfx,
+            "velocidad_ajustada": self.velocidad_ajustada,
+            "niveles_completados": self.niveles_completados
+        }
+        try:
+            with open("production_logs.json", "w", encoding="utf-8") as f:
+                json.dump(datos, f, indent=4, ensure_ascii=False)
+        except Exception as e:
+            print(f"Error al guardar logs: {e}")
+
+    def reproducir_sonido(self, nombre):
+        sonido = self.recursos.obtener_sonido(nombre)
+        sonido.set_volume(self.volumen_sfx)
+        sonido.play()
+        return sonido
+
+    def reproducir_musica(self, nombre, loops=-1):
+        musica = self.recursos.obtener_sonido(nombre)
+        musica.set_volume(self.volumen_musica)
+        musica.play(loops)
+        return musica
 
     def cambiar_pantalla(self, nueva_pantalla):
         """
@@ -66,6 +121,8 @@ class MotorJuego:
         self.tiempo_inicio = None
         self.frases_recientes = []
         self.velocidad_palabra = 0.4
+        self.pulsaciones_correctas = 0
+        self.pulsaciones_incorrectas = 0
 
     def salir(self):
         """
