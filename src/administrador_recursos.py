@@ -16,33 +16,27 @@ class AdministradorRecursos:
         self._sonidos = {}
         
         # Mapeos especiales de compatibilidad con las claves originales de assets.
-        # Esto permite que la lógica interna del juego busque claves antiguas (ej: logo.png)
-        # y devuelva el archivo físico correspondiente (ej: Logo.jpg), manteniendo
-        # intacto el comportamiento original.
         self._mapeo_nombres = {
             "Will.jpg": "Will.jpg",
             "Comparativos.jpg": "Comparativos.jpg",
             "PresentPerfect.png": "PresentPerfect.png",
-            "PastSimple.png": "PastSimple.jpg",         # Mapea clave png a archivo jpg físico
+            "PastSimple.png": "PastSimple.jpg",
             "corazon.png": "corazon.png",
-            "logo.png": "Logo.jpg",                     # Mapea clave png a archivo jpg físico
+            "logo.png": "IndustrialQuestLogoFinal.png",  # Corregido para usar el logo oficial existente
             "Signo.png": "Signo.png",
             "Boton.png": "Boton.png",
             "rule1.png": "rule1.png",
             "rule2.png": "rule2.png",
-            "stage1_mascota.gif": "rule1.png"            # Mapea mascota gif a rule1.png físico
+            "stage1_mascota.gif": "rule1.png"
         }
 
     def obtener_ruta_recurso(self, nombre_archivo):
         """
-        Resuelve y retorna la ruta absoluta o relativa correcta del archivo en el disco,
-        aplicando los mapeos de compatibilidad si es necesario y enrutándolo
-        a la subcarpeta correspondiente ('imagenes' o 'sonidos').
+        Resuelve y retorna la ruta del archivo en el disco.
         """
         nombre_real = self._mapeo_nombres.get(nombre_archivo, nombre_archivo)
         extension = os.path.splitext(nombre_real)[1].lower()
         
-        # Enrutar según la extensión del archivo real
         if extension in (".wav", ".mp3", ".ogg"):
             subcarpeta = "sonidos"
         else:
@@ -53,15 +47,38 @@ class AdministradorRecursos:
     def obtener_imagen(self, nombre):
         """
         Carga una imagen desde el disco, la almacena en caché y la retorna.
-        Si la imagen ya fue cargada anteriormente, la devuelve directamente de la caché.
+        Genera dinámicamente recursos de reemplazo temáticos si no se encuentran en disco.
         """
         if nombre not in self._imagenes:
             ruta = self.obtener_ruta_recurso(nombre)
             try:
                 self._imagenes[nombre] = pygame.image.load(ruta)
-            except pygame.error as e:
-                print(f"Error crítico al cargar la imagen {ruta}: {e}")
-                raise e
+            except (pygame.error, FileNotFoundError) as e:
+                print(f"Advertencia: No se pudo cargar {ruta}. Generando recurso dinámico para '{nombre}'...")
+                if nombre == "Boton.png":
+                    # Generar dinámicamente un tablón de madera de 200x50 para botones
+                    surf = pygame.Surface((200, 50))
+                    # Color madera
+                    surf.fill((160, 110, 65))
+                    # Borde madera oscura
+                    pygame.draw.rect(surf, (90, 55, 30), (0, 0, 200, 50), 3)
+                    # Remaches metálicos en las esquinas
+                    pygame.draw.circle(surf, (80, 80, 80), (8, 8), 3)
+                    pygame.draw.circle(surf, (80, 80, 80), (192, 8), 3)
+                    pygame.draw.circle(surf, (80, 80, 80), (8, 42), 3)
+                    pygame.draw.circle(surf, (80, 80, 80), (192, 42), 3)
+                    self._imagenes[nombre] = surf
+                elif nombre == "logo.png" or nombre == "Logo.jpg":
+                    # Logo de repuesto rústico
+                    surf = pygame.Surface((320, 320))
+                    surf.fill((90, 55, 30))
+                    pygame.draw.rect(surf, (160, 110, 65), (10, 10, 300, 300), 5)
+                    self._imagenes[nombre] = surf
+                else:
+                    # Superficie vacía genérica de color fucsia
+                    surf = pygame.Surface((64, 64))
+                    surf.fill((255, 0, 255))
+                    self._imagenes[nombre] = surf
         return self._imagenes[nombre]
 
     def obtener_sonido(self, nombre):
