@@ -63,18 +63,22 @@ class PantallaJuego(Pantalla):
         self.boton_img = self.motor.recursos.obtener_imagen("Boton.png")
         self.boton_img = pygame.transform.scale(self.boton_img, (180, 42))
 
-        # Inicializar música de fondo del nivel en bucle
-        self.sonido_nivel = self.motor.recursos.obtener_sonido(self.tema_info["audio_fondo"])
+        # Inicializar música de fondo del nivel en bucle (Playlist aleatoria)
+        self.playlists = {
+            "Level 1: Reception Area": ["Stage1.wav", "Music_1.wav", "Music_2.wav"],
+            "Level 2: Production Area": ["Stage2.wav", "Music_3.wav", "Music_4.wav"],
+            "Level 3: Assembly Area": ["Stage3.wav", "Music_5.wav", "Music_6.wav"],
+            "Level 4: Quality Control & Dispatch": ["Stage4.wav", "Music_7.wav", "Music_8.wav"]
+        }
+        self.playlist_actual = self.playlists.get(self.motor.tema_actual, ["Stage1.wav", "Music_1.wav", "Music_2.wav"])
+        self.musica_actual_nombre = random.choice(self.playlist_actual)
+        self.sonido_nivel = self.motor.recursos.obtener_sonido(self.musica_actual_nombre)
         self.sonido_nivel.set_volume(self.motor.volumen_musica)
         self.sonido_nivel.play(-1)
         
         # Rotación automática de música
         self.tiempo_cambio_musica = 90.0 * 1000  # 90 segundos
         self.tiempo_ultima_musica = pygame.time.get_ticks()
-        try:
-            self.indice_musica_actual = int(self.motor.tema_actual.split(" ")[1].split(":")[0]) - 1
-        except Exception:
-            self.indice_musica_actual = 0
         
         # Captura de tiempo inicial
         self.motor.tiempo_inicio = pygame.time.get_ticks()
@@ -98,22 +102,28 @@ class PantallaJuego(Pantalla):
         self.x_sierras = 730
         self.cogs_x = [40, 200, 360, 520, 680]
 
-        # Definir áreas de rectángulos del HUD para mostrar Tooltips
-        self.rect_hud_progreso = pygame.Rect(15, 14, 260, 44)
-        self.rect_hud_tiempo = pygame.Rect(ANCHO_PANTALLA // 2 - 80, 14, 180, 44)
-        self.rect_btn_pausa = pygame.Rect(ANCHO_PANTALLA - 280, 14, 70, 44)
-        self.rect_hud_vidas = pygame.Rect(ANCHO_PANTALLA - 195, 14, 180, 44)
+        # Definir áreas de rectángulos del HUD Centrados en la parte superior
+        self.rect_hud_progreso = pygame.Rect(94, 14, 240, 44)
+        self.rect_hud_tiempo = pygame.Rect(346, 14, 140, 44)
+        self.rect_btn_pausa = pygame.Rect(498, 14, 46, 44)
+        self.rect_hud_vidas = pygame.Rect(556, 14, 150, 44)
         self.rect_input_box = pygame.Rect(ANCHO_PANTALLA // 2 - 180, ALTO_PANTALLA - 80, 360, 50)
 
-        # Botones del Menú de Pausa
-        self.rect_pausa_panel = pygame.Rect(180, 80, 440, 440)
-        self.btn_pausa_resume = pygame.Rect(210, 140, 380, 44)
-        self.btn_pausa_restart = pygame.Rect(210, 200, 380, 44)
-        self.btn_pausa_music_menos = pygame.Rect(440, 265, 36, 36)
-        self.btn_pausa_music_mas = pygame.Rect(540, 265, 36, 36)
-        self.btn_pausa_sfx_menos = pygame.Rect(440, 320, 36, 36)
-        self.btn_pausa_sfx_mas = pygame.Rect(540, 320, 36, 36)
-        self.btn_pausa_abandon = pygame.Rect(210, 395, 380, 44)
+        # Botones y elementos del Menú de Pausa Rediseñados (Tablero de madera y deslizadores)
+        self.rect_pausa_panel = pygame.Rect(180, 70, 440, 460)
+        self.btn_pausa_resume = pygame.Rect(210, 140, 380, 46)
+        self.btn_pausa_restart = pygame.Rect(210, 200, 380, 46)
+        
+        # Deslizadores y botones de volumen
+        self.btn_pausa_music_menos = pygame.Rect(320, 262, 32, 32)
+        self.btn_pausa_music_mas = pygame.Rect(530, 262, 32, 32)
+        self.rect_pausa_music_track = pygame.Rect(362, 275, 158, 6)
+        
+        self.btn_pausa_sfx_menos = pygame.Rect(320, 317, 32, 32)
+        self.btn_pausa_sfx_mas = pygame.Rect(530, 317, 32, 32)
+        self.rect_pausa_sfx_track = pygame.Rect(362, 330, 158, 6)
+        
+        self.btn_pausa_abandon = pygame.Rect(210, 380, 380, 46)
 
         # Tooltips de juego
         self.tooltip_progreso = BilingualTooltip(self.motor, "Current completed planks / target.", "Tablones completados en este turno / objetivo.")
@@ -251,11 +261,24 @@ class PantallaJuego(Pantalla):
                             self.motor.volumen_musica = min(1.0, self.motor.volumen_musica + 0.1)
                             self.sonido_nivel.set_volume(self.motor.volumen_musica)
                             self.motor.reproducir_sonido("Correcta.wav")
+                        elif self.rect_pausa_music_track.collidepoint(evento.pos) or \
+                             pygame.Rect(self.rect_pausa_music_track.x, self.rect_pausa_music_track.y - 10, self.rect_pausa_music_track.width, 26).collidepoint(evento.pos):
+                            click_x = evento.pos[0]
+                            pct = (click_x - self.rect_pausa_music_track.x) / self.rect_pausa_music_track.width
+                            self.motor.volumen_musica = max(0.0, min(1.0, pct))
+                            self.sonido_nivel.set_volume(self.motor.volumen_musica)
+                            self.motor.reproducir_sonido("Correcta.wav")
                         elif self.btn_pausa_sfx_menos.collidepoint(evento.pos):
                             self.motor.volumen_sfx = max(0.0, self.motor.volumen_sfx - 0.1)
                             self.motor.reproducir_sonido("Correcta.wav")
                         elif self.btn_pausa_sfx_mas.collidepoint(evento.pos):
                             self.motor.volumen_sfx = min(1.0, self.motor.volumen_sfx + 0.1)
+                            self.motor.reproducir_sonido("Correcta.wav")
+                        elif self.rect_pausa_sfx_track.collidepoint(evento.pos) or \
+                             pygame.Rect(self.rect_pausa_sfx_track.x, self.rect_pausa_sfx_track.y - 10, self.rect_pausa_sfx_track.width, 26).collidepoint(evento.pos):
+                            click_x = evento.pos[0]
+                            pct = (click_x - self.rect_pausa_sfx_track.x) / self.rect_pausa_sfx_track.width
+                            self.motor.volumen_sfx = max(0.0, min(1.0, pct))
                             self.motor.reproducir_sonido("Correcta.wav")
                         elif self.btn_pausa_abandon.collidepoint(evento.pos):
                             self.sonido_nivel.stop()
@@ -417,12 +440,14 @@ class PantallaJuego(Pantalla):
         if ahora - self.tiempo_ultima_musica > self.tiempo_cambio_musica:
             self.tiempo_ultima_musica = ahora
             self.sonido_nivel.stop()
-            self.indice_musica_actual = (self.indice_musica_actual + 1) % 4
-            nombre_audio = f"Stage{self.indice_musica_actual + 1}.wav"
-            self.sonido_nivel = self.motor.recursos.obtener_sonido(nombre_audio)
+            # Elegir una pista aleatoria de la playlist actual, diferente de la que estaba sonando
+            pistas_disponibles = [p for p in self.playlist_actual if p != self.musica_actual_nombre]
+            if not pistas_disponibles:
+                pistas_disponibles = self.playlist_actual
+            self.musica_actual_nombre = random.choice(pistas_disponibles)
+            self.sonido_nivel = self.motor.recursos.obtener_sonido(self.musica_actual_nombre)
             self.sonido_nivel.set_volume(self.motor.volumen_musica)
             self.sonido_nivel.play(-1)
-            self.motor.reproducir_sonido("Correcta.wav")
 
         # Detección de hovers en HUD y tablones de frases
         pos_mouse = pygame.mouse.get_pos()
@@ -495,7 +520,9 @@ class PantallaJuego(Pantalla):
         pygame.draw.line(superficie_juego, (100, 100, 100), (self.rect_hud_progreso.x + 14, self.rect_hud_progreso.y + 20), (self.rect_hud_progreso.x + 20, self.rect_hud_progreso.y + 20), 1)
 
         texto_pts = self.motor.fuente.render(f"PROGRESS: {self.motor.puntuacion}/{self.objetivo_shift}", True, (255, 220, 80))
-        superficie_juego.blit(texto_pts, (self.rect_hud_progreso.x + 36, self.rect_hud_progreso.y + 6))
+        # Centrar el texto en el espacio restante de la caja
+        tx = self.rect_hud_progreso.x + 30 + (210 - texto_pts.get_width()) // 2
+        superficie_juego.blit(texto_pts, (tx, self.rect_hud_progreso.y + 6))
 
         # 2. Caja de Tiempo
         total_ticks = pygame.time.get_ticks() - self.motor.tiempo_inicio - self.tiempo_pausado_acumulado
@@ -514,7 +541,9 @@ class PantallaJuego(Pantalla):
         pygame.draw.line(superficie_juego, COLOR_NEGRO, (cx_reloj, cy_reloj), (cx_reloj + 4, cy_reloj), 2)
 
         texto_tiempo = self.motor.fuente.render(f"TIME: {tiempo_transcurrido}s", True, (255, 255, 255))
-        superficie_juego.blit(texto_tiempo, (self.rect_hud_tiempo.x + 36, self.rect_hud_tiempo.y + 6))
+        # Centrar el texto en el espacio restante de la caja
+        tx_t = self.rect_hud_tiempo.x + 32 + (108 - texto_tiempo.get_width()) // 2
+        superficie_juego.blit(texto_tiempo, (tx_t, self.rect_hud_tiempo.y + 6))
 
         # 3. Botón de Pausa
         color_btn_pausa = (60, 65, 70) if self.hover_pausa else (40, 45, 50)
@@ -523,12 +552,19 @@ class PantallaJuego(Pantalla):
         texto_pausa = self.motor.fuente.render("||", True, (255, 255, 255))
         superficie_juego.blit(texto_pausa, (self.rect_btn_pausa.centerx - texto_pausa.get_width() // 2, self.rect_btn_pausa.centery - texto_pausa.get_height() // 2))
 
-        # 4. Vidas (Estáticas en el HUD)
+        # 4. Vidas Centradas en su contenedor
         pygame.draw.rect(superficie_juego, (20, 15, 10), (self.rect_hud_vidas.x, self.rect_hud_vidas.y, self.rect_hud_vidas.width, self.rect_hud_vidas.height), border_radius=4)
-        for i in range(self.motor.vidas):
-            x_vida = self.rect_hud_vidas.right - 40 - i * 40
+        pygame.draw.rect(superficie_juego, self.color_madera_borde, (self.rect_hud_vidas.x, self.rect_hud_vidas.y, self.rect_hud_vidas.width, self.rect_hud_vidas.height), 2, border_radius=4)
+        for i in range(3):
+            x_vida = self.rect_hud_vidas.x + 11 + i * 46
             y_vida = self.rect_hud_vidas.y + 4
-            superficie_juego.blit(self.sierra_vida, (x_vida, y_vida))
+            if i < self.motor.vidas:
+                superficie_juego.blit(self.sierra_vida, (x_vida, y_vida))
+            else:
+                # Silueta oscura para las vidas perdidas
+                sombra_corazon = self.sierra_vida.copy()
+                sombra_corazon.fill((40, 30, 30, 255), special_flags=pygame.BLEND_RGBA_MULT)
+                superficie_juego.blit(sombra_corazon, (x_vida, y_vida))
 
         # --- Caja de entrada metálica moderna ---
         pygame.draw.rect(superficie_juego, (20, 20, 22), (self.rect_input_box.x + 4, self.rect_input_box.y + 4, self.rect_input_box.width, self.rect_input_box.height), border_radius=6)
@@ -577,72 +613,164 @@ class PantallaJuego(Pantalla):
         overlay.fill((10, 10, 15, 180))
         superficie.blit(overlay, (0, 0))
 
-        # Panel de Pausa
-        pygame.draw.rect(superficie, (15, 15, 18), (self.rect_pausa_panel.x + 5, self.rect_pausa_panel.y + 5, self.rect_pausa_panel.width, self.rect_pausa_panel.height), border_radius=8)
-        pygame.draw.rect(superficie, self.color_acero, self.rect_pausa_panel, border_radius=8)
-        pygame.draw.rect(superficie, (180, 140, 70), self.rect_pausa_panel, 3, border_radius=8)
+        # 1. Panel de Pausa (Tablero de madera de pino rústico con bordes metálicos y clavos)
+        # Sombra
+        pygame.draw.rect(superficie, (10, 7, 5), (self.rect_pausa_panel.x + 5, self.rect_pausa_panel.y + 5, self.rect_pausa_panel.width, self.rect_pausa_panel.height), border_radius=8)
+        # Relleno de madera de pino claro
+        color_madera_pino = (245, 230, 205)
+        pygame.draw.rect(superficie, color_madera_pino, self.rect_pausa_panel, border_radius=8)
+        # Borde de bronce
+        color_bronce = (180, 140, 70)
+        pygame.draw.rect(superficie, color_bronce, self.rect_pausa_panel, 6, border_radius=8)
+        # Borde interior de acero oscuro
+        pygame.draw.rect(superficie, (60, 35, 15), (self.rect_pausa_panel.x + 5, self.rect_pausa_panel.y + 5, self.rect_pausa_panel.width - 10, self.rect_pausa_panel.height - 10), 2, border_radius=6)
+
+        # Clavos decorativos de bronce en las esquinas del panel
+        margen_clavo = 15
+        pos_clavos = [
+            (self.rect_pausa_panel.left + margen_clavo, self.rect_pausa_panel.top + margen_clavo),
+            (self.rect_pausa_panel.right - margen_clavo, self.rect_pausa_panel.top + margen_clavo),
+            (self.rect_pausa_panel.left + margen_clavo, self.rect_pausa_panel.bottom - margen_clavo),
+            (self.rect_pausa_panel.right - margen_clavo, self.rect_pausa_panel.bottom - margen_clavo)
+        ]
+        for px, py in pos_clavos:
+            pygame.draw.circle(superficie, (60, 45, 25), (px, py), 6)
+            pygame.draw.circle(superficie, (180, 140, 70), (px, py), 4)
 
         # Encabezado Pausa
-        txt_pausa_title = self.motor.fuente.render("SHIFT PAUSED", True, (255, 210, 50))
-        superficie.blit(txt_pausa_title, (self.rect_pausa_panel.centerx - txt_pausa_title.get_width() // 2, self.rect_pausa_panel.top + 15))
-        pygame.draw.line(superficie, (180, 140, 70), (self.rect_pausa_panel.left + 20, self.rect_pausa_panel.top + 55), (self.rect_pausa_panel.right - 20, self.rect_pausa_panel.top + 55), 2)
+        txt_pausa_title = self.motor.fuente.render("SHIFT PAUSED", True, (120, 30, 10))
+        superficie.blit(txt_pausa_title, (self.rect_pausa_panel.centerx - txt_pausa_title.get_width() // 2, self.rect_pausa_panel.top + 20))
+        pygame.draw.line(superficie, (120, 75, 45), (self.rect_pausa_panel.left + 30, self.rect_pausa_panel.top + 60), (self.rect_pausa_panel.right - 30, self.rect_pausa_panel.top + 60), 2)
 
         # Botones
         pos_mouse = pygame.mouse.get_pos()
-        
+        color_madera_oscuro = (60, 35, 15)
+        color_madera_hover = (255, 190, 80)
+        color_madera_normal = (245, 230, 205)
+
+        def dibujar_boton_pausa(rect, texto_str):
+            is_hover = rect.collidepoint(pos_mouse)
+            offset_x = 2 if is_hover else 0
+            offset_y = 2 if is_hover else 0
+            
+            rect_dibujo = rect.copy()
+            rect_dibujo.x += offset_x
+            rect_dibujo.y += offset_y
+            
+            # Sombra
+            pygame.draw.rect(superficie, (10, 7, 5), (rect.x + 4, rect.y + 4, rect.width, rect.height), border_radius=4)
+            # Relleno
+            color_relleno = color_madera_hover if is_hover else color_madera_normal
+            pygame.draw.rect(superficie, color_relleno, rect_dibujo, border_radius=4)
+            # Borde
+            pygame.draw.rect(superficie, color_madera_oscuro, rect_dibujo, 3, border_radius=4)
+            
+            # Clavos
+            margen_btn_clavo = 6
+            btn_clavos = [
+                (rect_dibujo.left + margen_btn_clavo, rect_dibujo.top + margen_btn_clavo),
+                (rect_dibujo.right - margen_btn_clavo, rect_dibujo.top + margen_btn_clavo),
+                (rect_dibujo.left + margen_btn_clavo, rect_dibujo.bottom - margen_btn_clavo),
+                (rect_dibujo.right - margen_btn_clavo, rect_dibujo.bottom - margen_btn_clavo)
+            ]
+            for cx, cy in btn_clavos:
+                pygame.draw.circle(superficie, (110, 115, 120), (cx, cy), 3)
+
+            # Texto
+            texto_render = self.motor.fuente.render(texto_str, True, (30, 15, 5))
+            tx = rect_dibujo.centerx - texto_render.get_width() // 2
+            ty = rect_dibujo.centery - texto_render.get_height() // 2
+            superficie.blit(texto_render, (tx, ty))
+
         # 1. Resume
-        is_hover_res = self.btn_pausa_resume.collidepoint(pos_mouse)
-        offset_res = 2 if is_hover_res else 0
-        rect_res_d = self.btn_pausa_resume.copy()
-        rect_res_d.x += offset_res
-        rect_res_d.y += offset_res
-        superficie.blit(self.boton_img, rect_res_d)
-        txt_res = self.motor.fuente.render("Resume Shift", True, COLOR_NEGRO)
-        superficie.blit(txt_res, (rect_res_d.centerx - txt_res.get_width() // 2, rect_res_d.centery - txt_res.get_height() // 2))
+        dibujar_boton_pausa(self.btn_pausa_resume, "Resume Shift")
 
         # 2. Restart
-        is_hover_rest = self.btn_pausa_restart.collidepoint(pos_mouse)
-        offset_rest = 2 if is_hover_rest else 0
-        rect_rest_d = self.btn_pausa_restart.copy()
-        rect_rest_d.x += offset_rest
-        rect_rest_d.y += offset_rest
-        superficie.blit(self.boton_img, rect_rest_d)
-        txt_rest = self.motor.fuente.render("Restart Shift", True, COLOR_NEGRO)
-        superficie.blit(txt_rest, (rect_rest_d.centerx - txt_rest.get_width() // 2, rect_rest_d.centery - txt_rest.get_height() // 2))
+        dibujar_boton_pausa(self.btn_pausa_restart, "Restart Shift")
 
-        # 3. Control Música
-        txt_mus = self.motor.fuente.render("Music", True, (245, 245, 245))
-        superficie.blit(txt_mus, (self.rect_pausa_panel.left + 35, 270))
-        
-        pygame.draw.rect(superficie, (40, 45, 50), self.btn_pausa_music_menos, border_radius=4)
-        pygame.draw.rect(superficie, (200, 200, 200), self.btn_pausa_music_menos, 2, border_radius=4)
-        txt_menos = self.motor.fuente.render("-", True, (255, 255, 255))
+        # 3. Control Música (Slider + botones +/-)
+        txt_mus = self.motor.fuente.render("Music", True, color_madera_oscuro)
+        superficie.blit(txt_mus, (self.rect_pausa_panel.left + 35, 265))
+
+        # Botón -
+        is_hover_m_menos = self.btn_pausa_music_menos.collidepoint(pos_mouse)
+        color_btn_m_menos = (255, 190, 80) if is_hover_m_menos else (245, 230, 205)
+        pygame.draw.rect(superficie, color_btn_m_menos, self.btn_pausa_music_menos, border_radius=4)
+        pygame.draw.rect(superficie, color_madera_oscuro, self.btn_pausa_music_menos, 2, border_radius=4)
+        txt_menos = self.motor.fuente.render("-", True, color_madera_oscuro)
         superficie.blit(txt_menos, (self.btn_pausa_music_menos.centerx - txt_menos.get_width() // 2, self.btn_pausa_music_menos.centery - txt_menos.get_height() // 2))
 
-        pygame.draw.rect(superficie, (20, 20, 20), (480, 265, 55, 36), border_radius=4)
-        txt_val_m = self.motor.fuente.render(f"{int(self.motor.volumen_musica*100)}%", True, (255, 210, 80))
-        superficie.blit(txt_val_m, (507 - txt_val_m.get_width() // 2, 283 - txt_val_m.get_height() // 2))
+        # Slider Track
+        pygame.draw.rect(superficie, (180, 170, 155), self.rect_pausa_music_track, border_radius=3)
+        pygame.draw.rect(superficie, (110, 100, 85), self.rect_pausa_music_track, 1, border_radius=3)
+        
+        # Volumen actual relleno (golden steel)
+        vol_mus_w = int(self.rect_pausa_music_track.width * self.motor.volumen_musica)
+        if vol_mus_w > 0:
+            rect_relleno = pygame.Rect(self.rect_pausa_music_track.x, self.rect_pausa_music_track.y, vol_mus_w, self.rect_pausa_music_track.height)
+            pygame.draw.rect(superficie, (230, 120, 30), rect_relleno, border_radius=3)
 
-        pygame.draw.rect(superficie, (40, 45, 50), self.btn_pausa_music_mas, border_radius=4)
-        pygame.draw.rect(superficie, (200, 200, 200), self.btn_pausa_music_mas, 2, border_radius=4)
-        txt_mas = self.motor.fuente.render("+", True, (255, 255, 255))
+        # Knob del Slider (steel circle)
+        knob_mus_x = self.rect_pausa_music_track.x + vol_mus_w
+        knob_mus_y = self.rect_pausa_music_track.centery
+        is_hover_knob_mus = pygame.Rect(knob_mus_x - 8, knob_mus_y - 8, 16, 16).collidepoint(pos_mouse)
+        knob_color = (255, 160, 50) if is_hover_knob_mus else (110, 115, 120)
+        pygame.draw.circle(superficie, (50, 50, 50), (knob_mus_x, knob_mus_y), 9)
+        pygame.draw.circle(superficie, knob_color, (knob_mus_x, knob_mus_y), 7)
+        pygame.draw.circle(superficie, (200, 200, 200), (knob_mus_x - 2, knob_mus_y - 2), 2)
+
+        # Botón +
+        is_hover_m_mas = self.btn_pausa_music_mas.collidepoint(pos_mouse)
+        color_btn_m_mas = (255, 190, 80) if is_hover_m_mas else (245, 230, 205)
+        pygame.draw.rect(superficie, color_btn_m_mas, self.btn_pausa_music_mas, border_radius=4)
+        pygame.draw.rect(superficie, color_madera_oscuro, self.btn_pausa_music_mas, 2, border_radius=4)
+        txt_mas = self.motor.fuente.render("+", True, color_madera_oscuro)
         superficie.blit(txt_mas, (self.btn_pausa_music_mas.centerx - txt_mas.get_width() // 2, self.btn_pausa_music_mas.centery - txt_mas.get_height() // 2))
 
-        # 4. Control SFX
-        txt_sfx = self.motor.fuente.render("SFX Volume", True, (245, 245, 245))
-        superficie.blit(txt_sfx, (self.rect_pausa_panel.left + 35, 325))
-        
-        pygame.draw.rect(superficie, (40, 45, 50), self.btn_pausa_sfx_menos, border_radius=4)
-        pygame.draw.rect(superficie, (200, 200, 200), self.btn_pausa_sfx_menos, 2, border_radius=4)
+        # Texto porcentaje
+        txt_val_m = self.motor.fuente.render(f"{int(self.motor.volumen_musica*100)}%", True, color_madera_oscuro)
+        superficie.blit(txt_val_m, (570, 265))
+
+        # 4. Control SFX (Slider + botones +/-)
+        txt_sfx = self.motor.fuente.render("SFX", True, color_madera_oscuro)
+        superficie.blit(txt_sfx, (self.rect_pausa_panel.left + 35, 320))
+
+        # Botón -
+        is_hover_s_menos = self.btn_pausa_sfx_menos.collidepoint(pos_mouse)
+        color_btn_s_menos = (255, 190, 80) if is_hover_s_menos else (245, 230, 205)
+        pygame.draw.rect(superficie, color_btn_s_menos, self.btn_pausa_sfx_menos, border_radius=4)
+        pygame.draw.rect(superficie, color_madera_oscuro, self.btn_pausa_sfx_menos, 2, border_radius=4)
         superficie.blit(txt_menos, (self.btn_pausa_sfx_menos.centerx - txt_menos.get_width() // 2, self.btn_pausa_sfx_menos.centery - txt_menos.get_height() // 2))
 
-        pygame.draw.rect(superficie, (20, 20, 20), (480, 320, 55, 36), border_radius=4)
-        txt_val_s = self.motor.fuente.render(f"{int(self.motor.volumen_sfx*100)}%", True, (255, 210, 80))
-        superficie.blit(txt_val_s, (507 - txt_val_s.get_width() // 2, 338 - txt_val_s.get_height() // 2))
+        # Slider Track
+        pygame.draw.rect(superficie, (180, 170, 155), self.rect_pausa_sfx_track, border_radius=3)
+        pygame.draw.rect(superficie, (110, 100, 85), self.rect_pausa_sfx_track, 1, border_radius=3)
+        
+        # Volumen actual relleno (golden steel)
+        vol_sfx_w = int(self.rect_pausa_sfx_track.width * self.motor.volumen_sfx)
+        if vol_sfx_w > 0:
+            rect_relleno_s = pygame.Rect(self.rect_pausa_sfx_track.x, self.rect_pausa_sfx_track.y, vol_sfx_w, self.rect_pausa_sfx_track.height)
+            pygame.draw.rect(superficie, (230, 120, 30), rect_relleno_s, border_radius=3)
 
-        pygame.draw.rect(superficie, (40, 45, 50), self.btn_pausa_sfx_mas, border_radius=4)
-        pygame.draw.rect(superficie, (200, 200, 200), self.btn_pausa_sfx_mas, 2, border_radius=4)
+        # Knob del Slider (steel circle)
+        knob_sfx_x = self.rect_pausa_sfx_track.x + vol_sfx_w
+        knob_sfx_y = self.rect_pausa_sfx_track.centery
+        is_hover_knob_sfx = pygame.Rect(knob_sfx_x - 8, knob_sfx_y - 8, 16, 16).collidepoint(pos_mouse)
+        knob_color_sfx = (255, 160, 50) if is_hover_knob_sfx else (110, 115, 120)
+        pygame.draw.circle(superficie, (50, 50, 50), (knob_sfx_x, knob_sfx_y), 9)
+        pygame.draw.circle(superficie, knob_color_sfx, (knob_sfx_x, knob_sfx_y), 7)
+        pygame.draw.circle(superficie, (200, 200, 200), (knob_sfx_x - 2, knob_sfx_y - 2), 2)
+
+        # Botón +
+        is_hover_s_mas = self.btn_pausa_sfx_mas.collidepoint(pos_mouse)
+        color_btn_s_mas = (255, 190, 80) if is_hover_s_mas else (245, 230, 205)
+        pygame.draw.rect(superficie, color_btn_s_mas, self.btn_pausa_sfx_mas, border_radius=4)
+        pygame.draw.rect(superficie, color_madera_oscuro, self.btn_pausa_sfx_mas, 2, border_radius=4)
         superficie.blit(txt_mas, (self.btn_pausa_sfx_mas.centerx - txt_mas.get_width() // 2, self.btn_pausa_sfx_mas.centery - txt_mas.get_height() // 2))
+
+        # Texto porcentaje
+        txt_val_s = self.motor.fuente.render(f"{int(self.motor.volumen_sfx*100)}%", True, color_madera_oscuro)
+        superficie.blit(txt_val_s, (570, 320))
 
         # 5. Abandonar Shift
         is_hover_ab = self.btn_pausa_abandon.collidepoint(pos_mouse)
@@ -772,112 +900,7 @@ class PantallaJuego(Pantalla):
         superficie.blit(r_after, (curr_x, curr_y))
 
     def _dibujar_decoraciones_fabrica(self, superficie):
-        # Dibujar tuberías metálicas en el fondo (arriba y abajo)
-        pygame.draw.rect(superficie, (75, 80, 85), (0, 70, ANCHO_PANTALLA, 12))
-        pygame.draw.rect(superficie, (45, 50, 55), (0, 72, ANCHO_PANTALLA, 8))
-        # Soportes de tuberías
-        for sx in range(100, ANCHO_PANTALLA, 150):
-            pygame.draw.rect(superficie, (100, 105, 110), (sx, 65, 12, 22))
-            pygame.draw.circle(superficie, (200, 200, 200), (sx + 6, 76), 3)
-
-        # Decoraciones específicas de cada Shift
-        nombre_turno = self.motor.tema_actual
-        if "Shift 1" in nombre_turno or "Level 1" in nombre_turno:
-            # 1. Reception/Warehouse: Piles of logs, pallets, forklift cargo crates
-            # Dibujar troncos de madera apilados en el suelo (y > 480)
-            pygame.draw.rect(superficie, (130, 80, 40), (40, 500, 100, 30), border_radius=6)
-            pygame.draw.circle(superficie, (210, 170, 120), (40, 515), 15)
-            pygame.draw.circle(superficie, (210, 170, 120), (140, 515), 15)
-            pygame.draw.circle(superficie, (130, 80, 40), (40, 515), 15, 2)
-            pygame.draw.circle(superficie, (130, 80, 40), (140, 515), 15, 2)
-            pygame.draw.circle(superficie, (130, 80, 40), (40, 515), 8, 1)
-            pygame.draw.circle(superficie, (130, 80, 40), (140, 515), 8, 1)
-            
-            pygame.draw.rect(superficie, (130, 80, 40), (90, 480, 80, 24), border_radius=4)
-            pygame.draw.circle(superficie, (210, 170, 120), (90, 492), 12)
-            pygame.draw.circle(superficie, (210, 170, 120), (170, 492), 12)
-            pygame.draw.circle(superficie, (130, 80, 40), (90, 492), 12, 2)
-            pygame.draw.circle(superficie, (130, 80, 40), (170, 492), 12, 2)
-
-            # Cajas de inventario
-            pygame.draw.rect(superficie, (160, 110, 65), (280, 490, 50, 45), border_radius=2)
-            pygame.draw.rect(superficie, (90, 55, 30), (280, 490, 50, 45), 2, border_radius=2)
-            pygame.draw.line(superficie, (90, 55, 30), (280, 490), (330, 535), 2)
-            pygame.draw.line(superficie, (90, 55, 30), (330, 490), (280, 535), 2)
-
-            # Letrero de Recepción colgante
-            pygame.draw.line(superficie, (20, 20, 20), (200, 15), (200, 45), 2)
-            pygame.draw.line(superficie, (20, 20, 20), (280, 15), (280, 45), 2)
-            pygame.draw.rect(superficie, (220, 210, 190), (180, 45, 120, 30), border_radius=3)
-            pygame.draw.rect(superficie, (60, 45, 30), (180, 45, 120, 30), 2, border_radius=3)
-            txt_sign = self.motor.fuente_sistemas.render("RECEPTION Z-1", True, (60, 45, 30))
-            superficie.blit(txt_sign, (240 - txt_sign.get_width() // 2, 60 - txt_sign.get_height() // 2))
-
-        elif "Shift 2" in nombre_turno or "Level 2" in nombre_turno:
-            # 2. Sawmill/Production Line: gears, metal exhausts, warning lights
-            pygame.draw.rect(superficie, (90, 95, 100), (60, 470, 30, 70))
-            pygame.draw.rect(superficie, (60, 65, 70), (60, 470, 30, 70), 2)
-            pygame.draw.rect(superficie, (120, 125, 130), (52, 470, 46, 12))
-            
-            # Luz de alerta industrial roja parpadeante
-            ticks = pygame.time.get_ticks()
-            es_brillante = (ticks // 400) % 2 == 0
-            color_luz = (255, 30, 30) if es_brillante else (120, 0, 0)
-            pygame.draw.rect(superficie, (40, 40, 40), (220, 490, 20, 45))
-            pygame.draw.circle(superficie, color_luz, (230, 500), 10)
-            if es_brillante:
-                pygame.draw.circle(superficie, (255, 150, 150), (230, 500), 4)
-
-            # Letrero de Peligro Sierras
-            pygame.draw.line(superficie, (20, 20, 20), (320, 15), (320, 45), 2)
-            pygame.draw.line(superficie, (20, 20, 20), (400, 15), (400, 45), 2)
-            pygame.draw.rect(superficie, (255, 230, 50), (300, 45, 120, 30), border_radius=3)
-            pygame.draw.rect(superficie, (0, 0, 0), (300, 45, 120, 30), 2, border_radius=3)
-            txt_sign = self.motor.fuente_sistemas.render("SAWMILL Z-2", True, (0, 0, 0))
-            superficie.blit(txt_sign, (360 - txt_sign.get_width() // 2, 60 - txt_sign.get_height() // 2))
-
-        elif "Shift 3" in nombre_turno or "Level 3" in nombre_turno:
-            # 3. Assembly Area: workbench, blueprints, tools (hammer, saw), glue bottle
-            pygame.draw.rect(superficie, (120, 75, 45), (40, 490, 140, 45), border_radius=3)
-            pygame.draw.rect(superficie, (70, 40, 20), (40, 490, 140, 45), 3, border_radius=3)
-            pygame.draw.rect(superficie, (50, 50, 50), (40, 535, 12, 45))
-            pygame.draw.rect(superficie, (50, 50, 50), (168, 535, 12, 45))
-            
-            # Martillo
-            pygame.draw.line(superficie, (180, 130, 70), (60, 510), (90, 510), 4)
-            pygame.draw.rect(superficie, (100, 105, 110), (85, 502, 12, 16), border_radius=1)
-            
-            # Silla medio armada
-            pygame.draw.rect(superficie, (190, 130, 80), (240, 490, 30, 30), border_radius=2)
-            pygame.draw.rect(superficie, (120, 75, 45), (240, 490, 30, 30), 2, border_radius=2)
-            pygame.draw.line(superficie, (120, 75, 45), (240, 520), (240, 550), 3)
-            pygame.draw.line(superficie, (120, 75, 45), (270, 520), (270, 550), 3)
-
-            # Letrero de Ensamblaje
-            pygame.draw.line(superficie, (20, 20, 20), (200, 15), (200, 45), 2)
-            pygame.draw.line(superficie, (20, 20, 20), (280, 15), (280, 45), 2)
-            pygame.draw.rect(superficie, (220, 210, 190), (180, 45, 120, 30), border_radius=3)
-            pygame.draw.rect(superficie, (60, 45, 30), (180, 45, 120, 30), 2, border_radius=3)
-            txt_sign = self.motor.fuente_sistemas.render("ASSEMBLY Z-3", True, (60, 45, 30))
-            superficie.blit(txt_sign, (240 - txt_sign.get_width() // 2, 60 - txt_sign.get_height() // 2))
-
-        elif "Shift 4" in nombre_turno or "Level 4" in nombre_turno:
-            # 4. Dispatch/Quality Control: shipping checklist board, wrapped furniture crates, audit calendar
-            pygame.draw.rect(superficie, (205, 160, 115), (40, 480, 60, 60), border_radius=2)
-            pygame.draw.rect(superficie, (110, 80, 45), (40, 480, 60, 60), 2, border_radius=2)
-            pygame.draw.line(superficie, (110, 80, 45), (40, 510), (100, 510), 2)
-            pygame.draw.line(superficie, (110, 80, 45), (70, 480), (70, 540), 2)
-            
-            # Sello de fragilidad
-            pygame.draw.rect(superficie, (180, 40, 40), (55, 495, 10, 12), border_radius=1)
-
-            # Calendario de envíos
-            pygame.draw.rect(superficie, (240, 240, 240), (220, 480, 45, 55), border_radius=2)
-            pygame.draw.rect(superficie, (180, 40, 40), (220, 480, 45, 15), border_radius=2)
-            pygame.draw.rect(superficie, (100, 100, 100), (220, 480, 45, 55), 2, border_radius=2)
-            for rx in range(226, 260, 8):
-                for ry in range(502, 530, 8):
-                    pygame.draw.circle(superficie, (60, 60, 60), (rx, ry), 2)
+        pass
             
             # Letrero de Despacho
             pygame.draw.line(superficie, (20, 20, 20), (320, 15), (320, 45), 2)
