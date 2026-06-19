@@ -120,6 +120,45 @@ class PantallaJuego(Pantalla):
         self.hover_vidas = False
         self.hover_input = False
 
+    def generar_nueva_frase(self):
+        tema = self.motor.tema_actual
+        if not tema:
+            return None
+
+        # Evitar solapamientos (carril libre en la entrada)
+        lanes_ocupados = {0: False, 1: False, 2: False}
+        for frase in self.motor.frases_en_pantalla:
+            if frase.x < 180:
+                lanes_ocupados[frase.lane] = True
+        
+        lanes_libres = [lane for lane, ocupado in lanes_ocupados.items() if not ocupado]
+        if not lanes_libres:
+            return None
+            
+        lane_seleccionado = random.choice(lanes_libres)
+        frases_disponibles = TEMAS[tema]["frases"]
+        
+        nueva_frase_instancia = None
+        intentos = 0
+        while nueva_frase_instancia is None and intentos < 100:
+            intentos += 1
+            indice = random.randint(0, len(frases_disponibles) - 1)
+            texto, palabra_correcta = frases_disponibles[indice]
+            
+            if texto not in self.motor.frases_recientes:
+                nueva_frase_instancia = FraseJuego(texto, palabra_correcta, lane=lane_seleccionado)
+
+        if nueva_frase_instancia is None:
+            indice = random.randint(0, len(frases_disponibles) - 1)
+            texto, palabra_correcta = frases_disponibles[indice]
+            nueva_frase_instancia = FraseJuego(texto, palabra_correcta, lane=lane_seleccionado)
+
+        self.motor.frases_recientes.append(nueva_frase_instancia.texto)
+        if len(self.motor.frases_recientes) > 10:
+            self.motor.frases_recientes.pop(0)
+
+        return nueva_frase_instancia
+
     def manejar_eventos(self, eventos):
         for evento in eventos:
             if evento.type == pygame.KEYDOWN:
