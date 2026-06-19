@@ -104,6 +104,15 @@ class MotorJuego:
         musica.play(loops)
         return musica
 
+    def obtener_records(self):
+        """
+        Retorna los 5 mejores turnos de trabajo completados exitosamente,
+        ordenados por puntuación, precisión y menor tiempo.
+        """
+        exitosos = [log for log in self.historico_logs if log.get("status") == "COMPLETED"]
+        exitosos.sort(key=lambda x: (-x.get("score", 0), -x.get("accuracy", 0.0), x.get("time_taken", 9999)))
+        return exitosos[:5]
+
     def cambiar_pantalla(self, nueva_pantalla):
         """
         Transiciona el juego hacia una nueva pantalla.
