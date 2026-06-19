@@ -167,6 +167,35 @@ class PantallaJuego(Pantalla):
 
         return nueva_frase_instancia
 
+    def obtener_rect_tablon(self, frase):
+        texto = frase.texto
+        underscores = "______" if "______" in texto else "___" if "___" in texto else ""
+        if underscores:
+            partes = texto.split(underscores, 1)
+            before = partes[0]
+            after = partes[1]
+        else:
+            before = texto
+            after = ""
+            
+        w_before, _ = self.motor.fuente.size(before)
+        w_after, _ = self.motor.fuente.size(after)
+        
+        is_active = (self.plank_activo == frase)
+        if is_active:
+            typed = self.motor.texto_ingresado
+            ans_str = frase.palabra_correcta[0] if isinstance(frase.palabra_correcta, list) else frase.palabra_correcta
+            remaining_len = max(0, len(ans_str) - len(typed))
+            blank_content = typed + ("_" * remaining_len)
+        else:
+            blank_content = underscores
+            
+        w_blank, _ = self.motor.fuente.size(blank_content)
+        total_text_width = w_before + w_blank + w_after
+        plank_width = total_text_width + 40
+        plank_height = 48
+        return pygame.Rect(frase.x, frase.y - plank_height // 2, plank_width, plank_height)
+
     def manejar_eventos(self, eventos):
         for evento in eventos:
             if evento.type == pygame.KEYDOWN:
