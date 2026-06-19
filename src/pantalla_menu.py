@@ -3,15 +3,13 @@
 Pantalla de menú principal para IndustrialQuest: Woodwork Edition.
 """
 import pygame
-import sys
-from src.constantes import COLOR_NEGRO, ANCHO_PANTALLA, ALTO_PANTALLA
+from src.constantes import ANCHO_PANTALLA, ALTO_PANTALLA
 from src.pantalla import Pantalla
+from src.tooltip import BilingualTooltip
 
 class PantallaMenu(Pantalla):
     """
-    Representa el menú principal de IndustrialQuest: Woodwork Edition.
-    Cuenta con estética rústico-industrial, logotipo deslizante, y 5 botones de madera
-    interactivos con sonido y animaciones tridimensionales de pulsación y resalte.
+    Menú principal con estilo rústico-industrial de alto contraste y ayuda contextual flotante.
     """
     def __init__(self, motor):
         super().__init__(motor)
@@ -46,18 +44,27 @@ class PantallaMenu(Pantalla):
             rect = pygame.Rect(self.x_btn, y, self.ancho_btn, self.alto_btn)
             self.botones_rects.append(rect)
 
+        # Inicializar tooltips bilingües
+        self.tooltips = [
+            BilingualTooltip(self.motor, "Start your woodwork grammar shift.", "Comienza tu turno de gramática maderera."),
+            BilingualTooltip(self.motor, "Open the operations manual and rules.", "Abre el manual de operaciones y reglas."),
+            BilingualTooltip(self.motor, "View completed logs and high scores.", "Ver registros completados y récords."),
+            BilingualTooltip(self.motor, "Configure audio volume and machine speed.", "Configurar volumen de audio y velocidad."),
+            BilingualTooltip(self.motor, "Exit the factory and close game.", "Salir de la fábrica y cerrar el juego.")
+        ]
+
         # Estado de interacción
         self.indice_hovered = -1
         
-        # Colores de la paleta rústico-industrial
-        self.color_madera_oscuro = (90, 55, 30)
-        self.color_madera_claro = (160, 110, 65)
-        self.color_madera_hover = (210, 150, 90)
+        # Paleta de colores rústica mejorada para alto contraste
+        self.color_madera_oscuro = (60, 35, 15)       # Tablón bordes oscuros
+        self.color_madera_claro = (245, 230, 205)      # Madera de pino clara (alto contraste para texto negro)
+        self.color_madera_hover = (255, 180, 70)       # Resalte dorado en hover
         self.color_acero = (110, 115, 120)
         self.color_acero_borde = (60, 65, 70)
-        self.color_texto_normal = (50, 30, 10)
-        self.color_texto_hover = (255, 230, 150)
-        self.color_fondo = (35, 25, 20)  # Tono carbón oscuro
+        self.color_texto_normal = (30, 15, 5)          # Marrón casi negro (máximo contraste)
+        self.color_texto_hover = (0, 0, 0)             # Negro absoluto en hover
+        self.color_fondo = (30, 22, 18)                # Tono madera de fondo oscura
 
     def manejar_eventos(self, eventos):
         if not self.animacion_completada:
@@ -68,29 +75,25 @@ class PantallaMenu(Pantalla):
                 if evento.button == 1:  # Clic izquierdo
                     for i, rect in enumerate(self.botones_rects):
                         if rect.collidepoint(evento.pos):
+                            # Play click sound
                             self.motor.reproducir_sonido("Correcta.wav")
                             self._ejecutar_accion(i)
                             return
 
     def _ejecutar_accion(self, indice):
         if indice == 0:
-            # Start Shift
             from src.pantalla_niveles import PantallaNiveles
             self.motor.cambiar_pantalla(PantallaNiveles(self.motor))
         elif indice == 1:
-            # Manual
             from src.pantalla_manual import PantallaManual
             self.motor.cambiar_pantalla(PantallaManual(self.motor))
         elif indice == 2:
-            # Production Logs
             from src.pantalla_logs import PantallaLogs
             self.motor.cambiar_pantalla(PantallaLogs(self.motor))
         elif indice == 3:
-            # Machinery Settings
             from src.pantalla_ajustes import PantallaAjustes
             self.motor.cambiar_pantalla(PantallaAjustes(self.motor))
         elif indice == 4:
-            # Clock Out
             self.motor.salir()
 
     def actualizar(self, dt):
@@ -104,7 +107,7 @@ class PantallaMenu(Pantalla):
             else:
                 self.animacion_completada = True
 
-        # Detección de hover en botones
+        # Detección de hover en botones (sin reproducir sonidos)
         if self.animacion_completada:
             pos_mouse = pygame.mouse.get_pos()
             hover_actual = -1
@@ -112,28 +115,22 @@ class PantallaMenu(Pantalla):
                 if rect.collidepoint(pos_mouse):
                     hover_actual = i
                     break
-            
-            if hover_actual != self.indice_hovered:
-                if hover_actual != -1:
-                    # Sonido de clic sutil de madera/chisel al pasar el ratón
-                    self.motor.reproducir_sonido("Correcta.wav")
-                self.indice_hovered = hover_actual
+            self.indice_hovered = hover_actual
 
     def dibujar(self, superficie):
-        # 1. Dibujar el fondo rústico de madera oscura
+        # Fondo oscuro
         superficie.fill(self.color_fondo)
         
-        # Dibujar vigas decorativas de madera en el fondo (2 lineas horizontales texturizadas)
+        # Vigas decorativas de fondo
         for y in range(40, ALTO_PANTALLA, 80):
-            pygame.draw.line(superficie, (45, 33, 27), (0, y), (ANCHO_PANTALLA, y), 8)
-            pygame.draw.line(superficie, (25, 17, 13), (0, y + 4), (ANCHO_PANTALLA, y + 4), 4)
+            pygame.draw.line(superficie, (20, 14, 11), (0, y), (ANCHO_PANTALLA, y), 8)
 
-        # Dibujar marco de acero industrial alrededor de toda la pantalla
+        # Marco de acero industrial
         grosor_marco = 15
         pygame.draw.rect(superficie, self.color_acero, (0, 0, ANCHO_PANTALLA, ALTO_PANTALLA), grosor_marco)
         pygame.draw.rect(superficie, self.color_acero_borde, (grosor_marco, grosor_marco, ANCHO_PANTALLA - 2*grosor_marco, ALTO_PANTALLA - 2*grosor_marco), 3)
 
-        # Dibujar remaches/clavos en las esquinas del marco de acero
+        # Remaches metálicos en el marco
         esquinas = [
             (30, 30), (ANCHO_PANTALLA - 30, 30),
             (30, ALTO_PANTALLA - 30), (ANCHO_PANTALLA - 30, ALTO_PANTALLA - 30),
@@ -141,17 +138,17 @@ class PantallaMenu(Pantalla):
         ]
         for cx, cy in esquinas:
             pygame.draw.circle(superficie, (50, 55, 60), (cx, cy), 8)
-            pygame.draw.circle(superficie, (180, 185, 190), (cx - 2, cy - 2), 3)  # Brillo
+            pygame.draw.circle(superficie, (180, 185, 190), (cx - 2, cy - 2), 3)
 
-        # 2. Dibujar el logo
+        # Dibujar el logo
         superficie.blit(self.logo, self.logo_rect)
 
-        # 3. Dibujar botones interactivos en forma de tablones
+        # Dibujar botones interactivos (Tablones con alto contraste)
         if self.animacion_completada:
             for i, rect in enumerate(self.botones_rects):
                 is_hover = (self.indice_hovered == i)
                 
-                # Desplazar ligeramente hacia abajo/derecha si está en hover para efecto 3D
+                # Desplazamiento 3D sutil
                 offset_x = 2 if is_hover else 0
                 offset_y = 2 if is_hover else 0
                 
@@ -159,36 +156,37 @@ class PantallaMenu(Pantalla):
                 rect_dibujo.x += offset_x
                 rect_dibujo.y += offset_y
 
-                # Sombra del tablón
-                pygame.draw.rect(superficie, (15, 10, 5), (rect.x + 4, rect.y + 4, rect.width, rect.height), border_radius=4)
+                # Sombra
+                pygame.draw.rect(superficie, (10, 7, 5), (rect.x + 4, rect.y + 4, rect.width, rect.height), border_radius=4)
 
-                # Relleno del tablón (color madera claro, o resaltado en hover)
+                # Cuerpo del botón (Pine wood claro para alto contraste con texto oscuro)
                 color_relleno = self.color_madera_hover if is_hover else self.color_madera_claro
                 pygame.draw.rect(superficie, color_relleno, rect_dibujo, border_radius=4)
                 
-                # Bordes del tablón (madera oscura tallada)
+                # Bordes
                 pygame.draw.rect(superficie, self.color_madera_oscuro, rect_dibujo, 3, border_radius=4)
 
-                # Clavos decorativos en las esquinas del tablón
-                diametro_clavo = 4
+                # Clavos decorativos en las esquinas del botón
                 margen_clavo = 6
-                posiciones_clavos = [
+                pos_clavos = [
                     (rect_dibujo.left + margen_clavo, rect_dibujo.top + margen_clavo),
                     (rect_dibujo.right - margen_clavo, rect_dibujo.top + margen_clavo),
                     (rect_dibujo.left + margen_clavo, rect_dibujo.bottom - margen_clavo),
                     (rect_dibujo.right - margen_clavo, rect_dibujo.bottom - margen_clavo)
                 ]
-                for px, py in posiciones_clavos:
-                    pygame.draw.circle(superficie, (80, 80, 80), (px, py), diametro_clavo)
-                    pygame.draw.circle(superficie, (30, 30, 30), (px, py), diametro_clavo, 1)
+                for px, py in pos_clavos:
+                    pygame.draw.circle(superficie, (80, 80, 80), (px, py), 3)
 
-                # Dibujar texto centrado
+                # Dibujar texto
                 color_texto = self.color_texto_hover if is_hover else self.color_texto_normal
-                
-                # Si está hovered, agregar un prefijo de sierra decorativo o indicador
                 texto_str = f"> {self.nombres_botones[i]} <" if is_hover else self.nombres_botones[i]
                 
                 texto_render = self.motor.fuente.render(texto_str, True, color_texto)
                 tx = rect_dibujo.centerx - texto_render.get_width() // 2
                 ty = rect_dibujo.centery - texto_render.get_height() // 2
                 superficie.blit(texto_render, (tx, ty))
+
+            # Dibujar el tooltip flotante al final (sobre todo lo demás) si está hovered
+            if self.indice_hovered != -1:
+                mx, my = pygame.mouse.get_pos()
+                self.tooltips[self.indice_hovered].dibujar(superficie, mx, my)
