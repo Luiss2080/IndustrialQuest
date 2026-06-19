@@ -901,11 +901,3 @@ class PantallaJuego(Pantalla):
 
     def _dibujar_decoraciones_fabrica(self, superficie):
         pass
-            
-            # Letrero de Despacho
-            pygame.draw.line(superficie, (20, 20, 20), (320, 15), (320, 45), 2)
-            pygame.draw.line(superficie, (20, 20, 20), (400, 15), (400, 45), 2)
-            pygame.draw.rect(superficie, (210, 220, 230), (300, 45, 120, 30), border_radius=3)
-            pygame.draw.rect(superficie, (50, 60, 70), (300, 45, 120, 30), 2, border_radius=3)
-            txt_sign = self.motor.fuente_sistemas.render("DISPATCH Z-4", True, (50, 60, 70))
-            superficie.blit(txt_sign, (360 - txt_sign.get_width() // 2, 60 - txt_sign.get_height() // 2))
