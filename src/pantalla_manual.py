@@ -2,6 +2,7 @@
 """
 Pantalla del Manual de Operaciones para IndustrialQuest: Woodwork Edition.
 """
+import math
 import pygame
 from src.constantes import COLOR_NEGRO, ANCHO_PANTALLA, ALTO_PANTALLA
 from src.pantalla import Pantalla
@@ -9,8 +10,8 @@ from src.tooltip import BilingualTooltip
 
 class PantallaManual(Pantalla):
     """
-    Manual instructivo de alto contraste que incorpora barra de desplazamiento (scroll)
-    arrastrable y soporte de rueda del ratón para facilitar la lectura.
+    Manual instructivo con barra de desplazamiento (scroll) arrastrable, soporte de rueda de ratón,
+    engranajes mecánicos decorativos y animaciones de deslizamiento.
     """
     def __init__(self, motor):
         super().__init__(motor)
@@ -21,13 +22,15 @@ class PantallaManual(Pantalla):
         self.color_pergamino_borde = (160, 120, 80)
         self.color_texto = (35, 25, 15)
         self.color_titulo = (120, 30, 10)
+        self.color_acero = (110, 115, 120)
+        self.color_acero_borde = (60, 65, 70)
         
         self.boton_img = self.motor.recursos.obtener_imagen("Boton.png")
         self.boton_img = pygame.transform.scale(self.boton_img, (160, 46))
         self.boton_volver = self.boton_img.get_rect(bottomright=(ANCHO_PANTALLA - 30, ALTO_PANTALLA - 30))
         self.texto_volver = self.motor.fuente.render("Clock In", True, COLOR_NEGRO)
 
-        # Contenido instructivo extendido (con más líneas para probar el scroll)
+        # Contenido instructivo
         self.instrucciones = [
             "OPERATING MANUAL: INDUSTRIALQUEST",
             "--------------------------------------------------",
@@ -53,12 +56,17 @@ class PantallaManual(Pantalla):
         ]
 
         # Configurar rect del manual
-        self.rect_manual = pygame.Rect(40, 30, ANCHO_PANTALLA - 80, ALTO_PANTALLA - 100)
+        self.rect_manual = pygame.Rect(60, 40, ANCHO_PANTALLA - 120, ALTO_PANTALLA - 120)
         
-        # Sistema de Scroll (Desplazamiento)
+        # Animación de entrada (desliza desde la izquierda)
+        self.offset_entrada = -600.0
+        
+        # Engranajes rotatorios
+        self.angulo_cogs = 0.0
+
+        # Sistema de Scroll
         self.scroll_y = 0
-        self.alto_linea = 32
-        self.margen_y_texto = 30
+        self.alto_linea = 28
         self.alto_contenido = len(self.instrucciones) * self.alto_linea + 50
         self.alto_visible = self.rect_manual.height - 40
         self.max_scroll_y = max(0, self.alto_contenido - self.alto_visible)
@@ -76,7 +84,6 @@ class PantallaManual(Pantalla):
 
     def manejar_eventos(self, eventos):
         for evento in eventos:
-            # Control de arrastre del scrollbar
             if evento.type == pygame.MOUSEBUTTONDOWN:
                 if evento.button == 1: # Clic izquierdo
                     # Verificar clic en volver
@@ -91,11 +98,11 @@ class PantallaManual(Pantalla):
                     if handle_rect.collidepoint(evento.pos):
                         self.drag_scrollbar = True
                 
-                # Rueda del ratón (Mouse wheel scroll)
+                # Rueda del ratón
                 elif evento.button == 4: # Scroll Up
-                    self.scroll_y = max(0, self.scroll_y - 25)
+                    self.scroll_y = max(0, self.scroll_y - 20)
                 elif evento.button == 5: # Scroll Down
-                    self.scroll_y = min(self.max_scroll_y, self.scroll_y + 25)
+                    self.scroll_y = min(self.max_scroll_y, self.scroll_y + 20)
                     
             elif evento.type == pygame.MOUSEBUTTONUP:
                 if evento.button == 1:
@@ -103,7 +110,6 @@ class PantallaManual(Pantalla):
                     
             elif evento.type == pygame.MOUSEMOTION:
                 if self.drag_scrollbar:
-                    # Calcular posición del scroll según arrastre del cursor
                     rel_y = evento.pos[1] - self.rect_track.top - 20
                     alto_rango = self.rect_track.height - 40
                     if alto_rango > 0:
@@ -111,7 +117,6 @@ class PantallaManual(Pantalla):
                         self.scroll_y = porcentaje * self.max_scroll_y
 
     def _obtener_handle_rect(self):
-        """Calcula las coordenadas de la barra deslizante (thumb/handle) del scrollbar."""
         alto_rango = self.rect_track.height - 40
         if self.max_scroll_y > 0:
             porcentaje = self.scroll_y / self.max_scroll_y
@@ -121,48 +126,97 @@ class PantallaManual(Pantalla):
         return pygame.Rect(self.rect_track.x - 2, handle_y, 14, 40)
 
     def actualizar(self, dt):
+        # Deslizamiento de entrada
+        self.offset_entrada += (0 - self.offset_entrada) * 0.15
+        if abs(self.offset_entrada) < 1:
+            self.offset_entrada = 0
+            
+        # Rotar engranajes
+        self.angulo_cogs = (self.angulo_cogs + 0.08 * dt) % 360
+
         pos_mouse = pygame.mouse.get_pos()
         self.volver_hovered = self.boton_volver.collidepoint(pos_mouse)
-        self.manual_hovered = self.rect_manual.collidepoint(pos_mouse) and not self.volver_hovered
+        
+        rect_actual = self.rect_manual.copy()
+        rect_actual.x += int(self.offset_entrada)
+        self.manual_hovered = rect_actual.collidepoint(pos_mouse) and not self.volver_hovered
+
+    def _dibujar_cog_engranaje(self, superficie, cx, cy, radio, dientes, angulo, color):
+        pygame.draw.circle(superficie, color, (cx, cy), radio)
+        pygame.draw.circle(superficie, (20, 20, 22), (cx, cy), radio // 3)
+        pygame.draw.circle(superficie, color, (cx, cy), radio // 3, 2)
+        for i in range(dientes):
+            rad_base = math.radians(angulo + i * (360 / dientes))
+            rad_desfase = math.radians(angulo + i * (360 / dientes) + (180 / dientes))
+            bx = cx + radio * math.cos(rad_base)
+            by = cy + radio * math.sin(rad_base)
+            px = cx + (radio + 6) * math.cos(rad_desfase)
+            py = cy + (radio + 6) * math.sin(rad_desfase)
+            nx = cx + radio * math.cos(rad_siguiente := math.radians(angulo + (i + 1) * (360 / dientes)))
+            ny = cy + radio * math.sin(rad_siguiente)
+            pygame.draw.polygon(superficie, color, [(bx, by), (px, py), (nx, ny)])
 
     def dibujar(self, superficie):
-        # Fondo carbón oscuro
         superficie.fill(self.color_fondo)
         
-        # Sombra del manual
-        pygame.draw.rect(superficie, (10, 7, 5), (self.rect_manual.x + 5, self.rect_manual.y + 5, self.rect_manual.width, self.rect_manual.height), border_radius=8)
-        # Relleno de papel pergamino
-        pygame.draw.rect(superficie, self.color_pergamino, self.rect_manual, border_radius=8)
-        # Bordes rústicos
-        pygame.draw.rect(superficie, self.color_pergamino_borde, self.rect_manual, 6, border_radius=8)
+        # Marco de acero
+        grosor_marco = 15
+        pygame.draw.rect(superficie, self.color_acero, (0, 0, ANCHO_PANTALLA, ALTO_PANTALLA), grosor_marco)
+        pygame.draw.rect(superficie, self.color_acero_borde, (grosor_marco, grosor_marco, ANCHO_PANTALLA - 2*grosor_marco, ALTO_PANTALLA - 2*grosor_marco), 3)
 
-        # Dibujar textos recortados por el área visible (usar clip rect para no salirse de la caja)
+        # Engranajes en las esquinas
+        self._dibujar_cog_engranaje(superficie, 45, 45, 24, 8, self.angulo_cogs, (85, 90, 95))
+        self._dibujar_cog_engranaje(superficie, ANCHO_PANTALLA - 45, 45, 24, 8, -self.angulo_cogs, (85, 90, 95))
+        self._dibujar_cog_engranaje(superficie, 45, ALTO_PANTALLA - 45, 24, 8, -self.angulo_cogs, (80, 85, 90))
+        self._dibujar_cog_engranaje(superficie, ANCHO_PANTALLA - 45, ALTO_PANTALLA - 45, 24, 8, self.angulo_cogs, (80, 85, 90))
+
+        # Posición actual del manual (con offset)
+        offset_x = int(self.offset_entrada)
+        rect_manual_d = self.rect_manual.copy()
+        rect_manual_d.x += offset_x
+
+        # Sombra del manual
+        pygame.draw.rect(superficie, (10, 7, 5), (rect_manual_d.x + 5, rect_manual_d.y + 5, rect_manual_d.width, rect_manual_d.height), border_radius=8)
+        # Relleno de papel pergamino
+        pygame.draw.rect(superficie, self.color_pergamino, rect_manual_d, border_radius=8)
+        # Bordes rústicos
+        pygame.draw.rect(superficie, self.color_pergamino_borde, rect_manual_d, 6, border_radius=8)
+
+        # Dibujar textos usando fuente_sistemas para perfecta visualización y soporte de acentos
         sub_superficie_texto = pygame.Surface((self.rect_manual.width - 40, self.rect_manual.height - 40), pygame.SRCALPHA)
         
         y_dibujo = 15 - self.scroll_y
         for linea in self.instrucciones:
             if linea.endswith(":") or linea.startswith("OPERATING"):
                 color = self.color_titulo
+                fuente_render = self.motor.fuente_sistemas_grande
+                # Centrar el título de cabecera
+                if linea.startswith("OPERATING"):
+                    txt_r = fuente_render.render(linea, True, color)
+                    sub_superficie_texto.blit(txt_r, (sub_superficie_texto.get_width() // 2 - txt_r.get_width() // 2, y_dibujo))
+                    y_dibujo += self.alto_linea + 5
+                    continue
             else:
                 color = self.color_texto
+                fuente_render = self.motor.fuente_sistemas
                 
-            texto_render = self.motor.fuente.render(linea, True, color)
-            sub_superficie_texto.blit(texto_render, (15, y_dibujo))
+            txt_r = fuente_render.render(linea, True, color)
+            sub_superficie_texto.blit(txt_r, (20, y_dibujo))
             y_dibujo += self.alto_linea
 
-        superficie.blit(sub_superficie_texto, (self.rect_manual.x + 10, self.rect_manual.y + 15))
+        superficie.blit(sub_superficie_texto, (rect_manual_d.x + 15, rect_manual_d.y + 15))
 
-        # Dibujar barra de desplazamiento (Scrollbar) si el contenido supera el área visible
+        # Dibujar barra de desplazamiento (Scrollbar) si es necesario
         if self.max_scroll_y > 0:
-            # Canal del scrollbar (track)
-            pygame.draw.rect(superficie, (200, 190, 175), self.rect_track, border_radius=3)
-            pygame.draw.rect(superficie, (170, 160, 145), self.rect_track, 1, border_radius=3)
+            rect_track_d = self.rect_track.copy()
+            rect_track_d.x += offset_x
+            pygame.draw.rect(superficie, (200, 190, 175), rect_track_d, border_radius=3)
+            pygame.draw.rect(superficie, (170, 160, 145), rect_track_d, 1, border_radius=3)
             
-            # Manija del scrollbar (handle/thumb)
             handle_rect = self._obtener_handle_rect()
+            handle_rect.x += offset_x
             pygame.draw.rect(superficie, (110, 115, 120), handle_rect, border_radius=4)
             pygame.draw.rect(superficie, (60, 65, 70), handle_rect, 2, border_radius=4)
-            # Líneas del grip
             pygame.draw.line(superficie, (200, 200, 200), (handle_rect.centerx - 3, handle_rect.centery - 4), (handle_rect.centerx + 3, handle_rect.centery - 4), 2)
             pygame.draw.line(superficie, (200, 200, 200), (handle_rect.centerx - 3, handle_rect.centery), (handle_rect.centerx + 3, handle_rect.centery), 2)
             pygame.draw.line(superficie, (200, 200, 200), (handle_rect.centerx - 3, handle_rect.centery + 4), (handle_rect.centerx + 3, handle_rect.centery + 4), 2)
