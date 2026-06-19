@@ -138,8 +138,7 @@ class MotorJuego:
         Inicia reproduciendo la música de la pantalla de bienvenida y carga el menú principal.
         """
         # Reproducir sonido de título al inicio
-        sonido_titulo = self.recursos.obtener_sonido("Title.wav")
-        sonido_titulo.play()
+        self.reproducir_sonido("Title.wav")
 
         # Definir y mostrar la pantalla de menú inicial
         from src.pantalla_menu import PantallaMenu
