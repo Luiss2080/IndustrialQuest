@@ -84,13 +84,22 @@ class AdministradorRecursos:
     def obtener_sonido(self, nombre):
         """
         Carga un archivo de audio (WAV) desde el disco, lo almacena en caché y retorna
-        la instancia de pygame.mixer.Sound.
+        la instancia de pygame.mixer.Sound. Genera un objeto silencioso de respaldo si falla.
         """
         if nombre not in self._sonidos:
             ruta = self.obtener_ruta_recurso(nombre)
             try:
                 self._sonidos[nombre] = pygame.mixer.Sound(ruta)
-            except pygame.error as e:
-                print(f"Error crítico al cargar el sonido {ruta}: {e}")
-                raise e
+            except Exception as e:
+                print(f"Advertencia: No se pudo cargar el sonido {ruta}: {e}. Generando audio silencioso de respaldo...")
+                try:
+                    # Intentar crear un buffer de silencio de 1 segundo (44100 Hz, 16-bit, mono = 88200 bytes)
+                    self._sonidos[nombre] = pygame.mixer.Sound(buffer=bytes(88200))
+                except Exception:
+                    # Fallback final: Mock completo con interfaz idéntica
+                    class MockSound:
+                        def play(self, loops=0): pass
+                        def stop(self): pass
+                        def set_volume(self, volume): pass
+                    self._sonidos[nombre] = MockSound()
         return self._sonidos[nombre]
