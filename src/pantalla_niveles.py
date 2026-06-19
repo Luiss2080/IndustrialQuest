@@ -2,6 +2,7 @@
 """
 Pantalla de selección de turnos (niveles) para IndustrialQuest: Woodwork Edition.
 """
+import math
 import pygame
 from src.constantes import COLOR_NEGRO, ANCHO_PANTALLA, ALTO_PANTALLA
 from src.pantalla import Pantalla
@@ -10,20 +11,21 @@ from src.tooltip import BilingualTooltip
 
 class PantallaNiveles(Pantalla):
     """
-    Tablero del Registro de Turnos con todos los niveles desbloqueados desde el inicio,
-    mostrando claramente el tema, la dificultad y el estado de completado.
+    Tablero interactivo del Registro de Turnos. Cuenta con animaciones de deslizamiento,
+    resalte de selección, engranajes giratorios y un reloj de fábrica temático.
     """
     def __init__(self, motor):
         super().__init__(motor)
         
-        # Colores
+        # Colores rústicos y metálicos
         self.color_fondo = (30, 22, 18)
         self.color_acero = (110, 115, 120)
         self.color_acero_borde = (60, 65, 70)
+        self.color_bronce = (180, 140, 70)
         
-        # Tarjetas de nivel (Pine wood claro para alto contraste)
+        # Madera clara para las tarjetas
         self.color_tarjeta = (245, 230, 205)
-        self.color_tarjeta_hover = (255, 190, 80)
+        self.color_tarjeta_hover = (255, 200, 100)
         self.color_tarjeta_borde = (60, 35, 15)
         
         self.color_texto_oscuro = (25, 15, 5)
@@ -44,45 +46,51 @@ class PantallaNiveles(Pantalla):
             pygame.Rect(420, 305, 300, 170)
         ]
         
-        # Información específica de temática y dificultad de cada nivel
+        # Animación de entrada (desplazamiento horizontal inicial)
+        # Las tarjetas izquierdas (0, 2) vienen de la izquierda (-450), las derechas de la derecha (+450)
+        self.offsets_entrada = [-450, 450, -450, 450]
+        
+        # Ángulo para la animación de rotación de engranajes
+        self.angulo_cogs = 0.0
+
+        # Detalles para la visualización de tarjetas
         self.detalles_niveles = {
             "Level 1: Reception Area": {
                 "title": "Shift 1: Reception",
                 "theme": "Cargo Audit",
                 "diff": "Easy",
-                "diff_color": (50, 150, 40) # Verde
+                "diff_color": (35, 140, 30)
             },
             "Level 2: Production Area": {
                 "title": "Shift 2: Production",
                 "theme": "Wood Sawmill",
                 "diff": "Medium",
-                "diff_color": (180, 120, 20) # Dorado
+                "diff_color": (160, 105, 15)
             },
             "Level 3: Assembly Area": {
                 "title": "Shift 3: Assembly",
                 "theme": "Furniture Build",
                 "diff": "Hard",
-                "diff_color": (190, 80, 20) # Naranja
+                "diff_color": (190, 75, 15)
             },
             "Level 4: Quality Control & Dispatch": {
                 "title": "Shift 4: Dispatch",
                 "theme": "Final Shipment Audit",
                 "diff": "Expert",
-                "diff_color": (210, 30, 30) # Rojo
+                "diff_color": (210, 25, 25)
             }
         }
 
-        # Inicializar tooltips de niveles
+        # Inicializar tooltips bilingües
         self.tooltips_niveles = [
             BilingualTooltip(self.motor, "Practice Verb To Be past and present conjugations.", "Practica conjugaciones del verbo To Be pasado y presente."),
             BilingualTooltip(self.motor, "Practice present continuous (be + verb-ing) forms.", "Practica conjugaciones del presente continuo."),
             BilingualTooltip(self.motor, "Practice present simple third person and agreement.", "Practica concordancia del presente simple."),
             BilingualTooltip(self.motor, "Mixed grammar review including question formation.", "Repaso mixto de gramática y estructura de preguntas.")
         ]
-        
         self.tooltip_volver = BilingualTooltip(self.motor, "Return to Main Menu.", "Volver al Menú Principal.")
 
-        # Estado de hover
+        # Estado de hover e interacción
         self.indice_hovered = -1
         self.volver_hovered = False
 
@@ -97,31 +105,104 @@ class PantallaNiveles(Pantalla):
                         self.motor.cambiar_pantalla(PantallaMenu(self.motor))
                         return
                     
-                    # Clic en tarjetas (todos desbloqueados)
+                    # Clic en una tarjeta de nivel
                     for i, rect in enumerate(self.rects_tarjetas):
-                        if rect.collidepoint(evento.pos):
-                            self.motor.reproducir_sonido("Correcta.wav")
-                            self.motor.tema_actual = self.nombres_niveles[i]
-                            from src.pantalla_juego import PantallaJuego
-                            self.motor.cambiar_pantalla(PantallaJuego(self.motor))
-                            return
+                        # Solo permitir clic si ya ha terminado casi de deslizarse
+                        if abs(self.offsets_entrada[i]) < 10:
+                            # Calcular posición actual con offset
+                            rect_actual = rect.copy()
+                            rect_actual.x += int(self.offsets_entrada[i])
+                            if rect_actual.collidepoint(evento.pos):
+                                self.motor.reproducir_sonido("Correcta.wav")
+                                self.motor.tema_actual = self.nombres_niveles[i]
+                                from src.pantalla_juego import PantallaJuego
+                                self.motor.cambiar_pantalla(PantallaJuego(self.motor))
+                                return
 
     def actualizar(self, dt):
+        # Actualizar animaciones de entrada (interpolación suave)
+        for i in range(4):
+            self.offsets_entrada[i] += (0 - self.offsets_entrada[i]) * 0.15
+            if abs(self.offsets_entrada[i]) < 1:
+                self.offsets_entrada[i] = 0
+        
+        # Rotar engranajes decorativos
+        self.angulo_cogs = (self.angulo_cogs + 0.08 * dt) % 360
+
+        # Hover de ratón
         pos_mouse = pygame.mouse.get_pos()
         
-        # Hover tarjetas
         hover_actual = -1
         for i, rect in enumerate(self.rects_tarjetas):
-            if rect.collidepoint(pos_mouse):
+            rect_actual = rect.copy()
+            rect_actual.x += int(self.offsets_entrada[i])
+            if rect_actual.collidepoint(pos_mouse):
                 hover_actual = i
                 break
         self.indice_hovered = hover_actual
-
-        # Hover volver
         self.volver_hovered = self.boton_volver.collidepoint(pos_mouse)
 
+    def _dibujar_cog_engranaje(self, superficie, cx, cy, radio, dientes, angulo, color):
+        """Dibuja un engranaje metálico animado en la pantalla."""
+        pygame.draw.circle(superficie, color, (cx, cy), radio)
+        pygame.draw.circle(superficie, (20, 20, 22), (cx, cy), radio // 3)
+        pygame.draw.circle(superficie, color, (cx, cy), radio // 3, 2)
+        
+        for i in range(dientes):
+            rad_base = math.radians(angulo + i * (360 / dientes))
+            rad_desfase = math.radians(angulo + i * (360 / dientes) + (180 / dientes))
+            
+            bx = cx + radio * math.cos(rad_base)
+            by = cy + radio * math.sin(rad_base)
+            
+            px = cx + (radio + 6) * math.cos(rad_desfase)
+            py = cy + (radio + 6) * math.sin(rad_desfase)
+            
+            rad_siguiente = math.radians(angulo + (i + 1) * (360 / dientes))
+            nx = cx + radio * math.cos(rad_siguiente)
+            ny = cy + radio * math.sin(rad_siguiente)
+            
+            pygame.draw.polygon(superficie, color, [(bx, by), (px, py), (nx, ny)])
+
+    def _dibujar_reloj_fabrica(self, superficie, cx, cy, radio):
+        """Dibuja un reloj de pared industrial animado en la parte superior."""
+        # Sombra
+        pygame.draw.circle(superficie, (10, 10, 12), (cx + 3, cy + 3), radio)
+        # Marco de bronce
+        pygame.draw.circle(superficie, self.color_bronce, (cx, cy), radio)
+        pygame.draw.circle(superficie, (90, 70, 30), (cx, cy), radio, 3)
+        # Esfera blanca
+        pygame.draw.circle(superficie, (245, 240, 230), (cx, cy), radio - 5)
+        
+        # Ticks del reloj (12 marcas)
+        for i in range(12):
+            rad = math.radians(i * 30)
+            x_b = cx + (radio - 9) * math.cos(rad)
+            y_b = cy + (radio - 9) * math.sin(rad)
+            x_e = cx + (radio - 5) * math.cos(rad)
+            y_e = cy + (radio - 5) * math.sin(rad)
+            pygame.draw.line(superficie, COLOR_NEGRO, (x_b, y_b), (x_e, y_e), 2)
+            
+        # Manecillas animadas (simuladas por tiempo)
+        ticks = pygame.time.get_ticks()
+        ang_min = (ticks * 0.05) % 360
+        ang_hor = (ticks * 0.004) % 360
+        
+        # Minutero
+        mx = cx + (radio - 12) * math.cos(math.radians(ang_min - 90))
+        my = cy + (radio - 12) * math.sin(math.radians(ang_min - 90))
+        pygame.draw.line(superficie, (40, 40, 45), (cx, cy), (mx, my), 2)
+        
+        # Horero
+        hx = cx + (radio - 18) * math.cos(math.radians(ang_hor - 90))
+        hy = cy + (radio - 18) * math.sin(math.radians(ang_hor - 90))
+        pygame.draw.line(superficie, COLOR_NEGRO, (cx, cy), (hx, hy), 3)
+        
+        # Remache central
+        pygame.draw.circle(superficie, (180, 40, 40), (cx, cy), 3)
+
     def dibujar(self, superficie):
-        # Fondo oscuro
+        # Fondo oscuro de madera/fábrica
         superficie.fill(self.color_fondo)
 
         # Marco de acero
@@ -129,33 +210,49 @@ class PantallaNiveles(Pantalla):
         pygame.draw.rect(superficie, self.color_acero, (0, 0, ANCHO_PANTALLA, ALTO_PANTALLA), grosor_marco)
         pygame.draw.rect(superficie, self.color_acero_borde, (grosor_marco, grosor_marco, ANCHO_PANTALLA - 2*grosor_marco, ALTO_PANTALLA - 2*grosor_marco), 3)
 
-        # Título
-        titulo_render = self.motor.fuente.render("FACTORY SHIFT REGISTRY", True, (255, 220, 80))
-        superficie.blit(titulo_render, (ANCHO_PANTALLA // 2 - titulo_render.get_width() // 2, 35))
+        # Engranajes animados en las esquinas
+        self._dibujar_cog_engranaje(superficie, 45, 45, 24, 8, self.angulo_cogs, (85, 90, 95))
+        self._dibujar_cog_engranaje(superficie, ANCHO_PANTALLA - 45, 45, 24, 8, -self.angulo_cogs, (85, 90, 95))
+        self._dibujar_cog_engranaje(superficie, 45, ALTO_PANTALLA - 45, 24, 8, -self.angulo_cogs, (80, 85, 90))
+        self._dibujar_cog_engranaje(superficie, ANCHO_PANTALLA - 45, ALTO_PANTALLA - 45, 24, 8, self.angulo_cogs, (80, 85, 90))
 
-        # Dibujar las 4 tarjetas (Todas desbloqueadas por defecto)
+        # Título centrado
+        titulo_render = self.motor.fuente.render("FACTORY SHIFT REGISTRY", True, (255, 220, 80))
+        superficie.blit(titulo_render, (ANCHO_PANTALLA // 2 - titulo_render.get_width() // 2 - 30, 35))
+
+        # Reloj de fábrica a la derecha del título
+        self._dibujar_reloj_fabrica(superficie, ANCHO_PANTALLA // 2 + titulo_render.get_width() // 2 + 15, 48, 22)
+
+        # Dibujar las 4 tarjetas con animaciones
         for i, rect in enumerate(self.rects_tarjetas):
             nombre_real = self.nombres_niveles[i]
             detalles = self.detalles_niveles[nombre_real]
             completado = nombre_real in self.motor.niveles_completados
             is_hover = (self.indice_hovered == i)
             
-            # Desplazamiento 3D sutil en hover
-            offset = 2 if is_hover else 0
+            # Aplicar offset de entrada
+            offset_x = int(self.offsets_entrada[i])
             rect_dibujo = rect.copy()
-            rect_dibujo.x += offset
-            rect_dibujo.y += offset
+            rect_dibujo.x += offset_x
+            
+            # Sutil escalado o desplazamiento en hover
+            if is_hover:
+                rect_dibujo.inflate_ip(6, 6) # Crece 6px
+            
+            # Dibujar Sombra
+            pygame.draw.rect(superficie, (10, 7, 5), (rect_dibujo.x + 5, rect_dibujo.y + 5, rect_dibujo.width, rect_dibujo.height), border_radius=6)
 
-            # Sombra
-            pygame.draw.rect(superficie, (10, 7, 5), (rect.x + 5, rect.y + 5, rect.width, rect.height), border_radius=6)
-
-            # Relleno madera clara
+            # Relleno de madera
             color_relleno = self.color_tarjeta_hover if is_hover else self.color_tarjeta
             pygame.draw.rect(superficie, color_relleno, rect_dibujo, border_radius=6)
-            pygame.draw.rect(superficie, self.color_tarjeta_borde, rect_dibujo, 3, border_radius=6)
+            
+            # Borde (Dorado en hover, oscuro normal)
+            color_borde = self.color_bronce if is_hover else self.color_tarjeta_borde
+            grosor_borde = 4 if is_hover else 2
+            pygame.draw.rect(superficie, color_borde, rect_dibujo, grosor_borde, border_radius=6)
 
-            # Clavitos esquineros
-            margen_clavo = 6
+            # Clavitos decorativos en esquinas de tarjetas
+            margen_clavo = 8
             pos_clavos = [
                 (rect_dibujo.left + margen_clavo, rect_dibujo.top + margen_clavo),
                 (rect_dibujo.right - margen_clavo, rect_dibujo.top + margen_clavo),
@@ -165,32 +262,41 @@ class PantallaNiveles(Pantalla):
             for px, py in pos_clavos:
                 pygame.draw.circle(superficie, (90, 50, 20), (px, py), 3)
 
-            # 1. Nombre de Shift
-            txt_titulo = self.motor.fuente.render(detalles["title"], True, self.color_texto_oscuro)
-            superficie.blit(txt_titulo, (rect_dibujo.x + 18, rect_dibujo.y + 12))
+            # --- Textos Centrados usando fuente_sistemas de alta legibilidad ---
+            cx = rect_dibujo.centerx
+            
+            # 1. Nombre de Shift (Negrita destacado)
+            txt_titulo = self.motor.fuente_sistemas_grande.render(detalles["title"], True, self.color_texto_oscuro)
+            superficie.blit(txt_titulo, (cx - txt_titulo.get_width() // 2, rect_dibujo.y + 15))
+
+            # Línea decorativa divisoria en el tablón
+            pygame.draw.line(superficie, (160, 120, 80), (rect_dibujo.left + 25, rect_dibujo.y + 52), (rect_dibujo.right - 25, rect_dibujo.y + 52), 1)
 
             # 2. Temática del turno
-            txt_tematica = self.motor.fuente.render(f"Theme: {detalles['theme']}", True, self.color_texto_desc)
-            superficie.blit(txt_tematica, (rect_dibujo.x + 18, rect_dibujo.y + 50))
+            txt_tematica = self.motor.fuente_sistemas.render(f"Zone: {detalles['theme']}", True, self.color_texto_desc)
+            superficie.blit(txt_tematica, (cx - txt_tematica.get_width() // 2, rect_dibujo.y + 60))
 
-            # 3. Dificultad (con color diferenciado)
-            txt_dificultad_lbl = self.motor.fuente.render("Diff: ", True, self.color_texto_desc)
-            superficie.blit(txt_dificultad_lbl, (rect_dibujo.x + 18, rect_dibujo.y + 88))
+            # 3. Dificultad
+            diff_label = "Difficulty: "
+            w_lbl = self.motor.fuente_sistemas.size(diff_label)[0]
+            txt_diff_lbl = self.motor.fuente_sistemas.render(diff_label, True, self.color_texto_desc)
+            txt_diff_val = self.motor.fuente_sistemas.render(detalles["diff"], True, detalles["diff_color"])
             
-            txt_dificultad_val = self.motor.fuente.render(detalles["diff"], True, detalles["diff_color"])
-            superficie.blit(txt_dificultad_val, (rect_dibujo.x + 18 + txt_dificultad_lbl.get_width(), rect_dibujo.y + 88))
+            total_diff_w = w_lbl + txt_diff_val.get_width()
+            pos_x_lbl = cx - total_diff_w // 2
+            superficie.blit(txt_diff_lbl, (pos_x_lbl, rect_dibujo.y + 92))
+            superficie.blit(txt_diff_val, (pos_x_lbl + w_lbl, rect_dibujo.y + 92))
 
             # 4. Estado de completado
-            tarea_str = "Status: "
             if completado:
-                tarea_str += "COMPLETED ⚙"
-                color_estado = (50, 160, 40) # Verde
+                tarea_str = "Status: COMPLETED ⚙"
+                color_estado = (35, 140, 30)
             else:
-                tarea_str += "READY"
-                color_estado = (190, 100, 0) # Dorado
+                tarea_str = "Status: READY TO WORK"
+                color_estado = (170, 95, 10)
                 
-            txt_estado = self.motor.fuente.render(tarea_str, True, color_estado)
-            superficie.blit(txt_estado, (rect_dibujo.x + 18, rect_dibujo.y + 126))
+            txt_estado = self.motor.fuente_sistemas.render(tarea_str, True, color_estado)
+            superficie.blit(txt_estado, (cx - txt_estado.get_width() // 2, rect_dibujo.y + 128))
 
         # Dibujar botón volver (Clock In)
         offset = 2 if self.volver_hovered else 0
