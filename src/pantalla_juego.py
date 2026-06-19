@@ -479,11 +479,21 @@ class PantallaJuego(Pantalla):
             p.dibujar(superficie_juego)
 
         # --- HUD Superior ---
-        # 1. Caja de Progreso (Con estrella dorada al inicio)
+        # 1. Caja de Progreso (Con estrella dorada y checklist al inicio)
         pygame.draw.rect(superficie_juego, (20, 15, 10), (self.rect_hud_progreso.x, self.rect_hud_progreso.y, self.rect_hud_progreso.width, self.rect_hud_progreso.height), border_radius=4)
         pygame.draw.rect(superficie_juego, self.color_madera_borde, (self.rect_hud_progreso.x, self.rect_hud_progreso.y, self.rect_hud_progreso.width, self.rect_hud_progreso.height), 2, border_radius=4)
         
-        superficie_juego.blit(self.estrella_icon, (self.rect_hud_progreso.x + 8, self.rect_hud_progreso.y + 10))
+        # Checklist icon next to PROGRESS
+        # Clipboard backing
+        pygame.draw.rect(superficie_juego, (150, 100, 60), (self.rect_hud_progreso.x + 10, self.rect_hud_progreso.y + 11, 14, 18), border_radius=1)
+        # Steel clip
+        pygame.draw.rect(superficie_juego, (180, 180, 180), (self.rect_hud_progreso.x + 13, self.rect_hud_progreso.y + 8, 8, 4))
+        # Paper sheet
+        pygame.draw.rect(superficie_juego, (245, 240, 230), (self.rect_hud_progreso.x + 12, self.rect_hud_progreso.y + 13, 10, 14))
+        # Lines on paper
+        pygame.draw.line(superficie_juego, (100, 100, 100), (self.rect_hud_progreso.x + 14, self.rect_hud_progreso.y + 16), (self.rect_hud_progreso.x + 20, self.rect_hud_progreso.y + 16), 1)
+        pygame.draw.line(superficie_juego, (100, 100, 100), (self.rect_hud_progreso.x + 14, self.rect_hud_progreso.y + 20), (self.rect_hud_progreso.x + 20, self.rect_hud_progreso.y + 20), 1)
+
         texto_pts = self.motor.fuente.render(f"PROGRESS: {self.motor.puntuacion}/{self.objetivo_shift}", True, (255, 220, 80))
         superficie_juego.blit(texto_pts, (self.rect_hud_progreso.x + 36, self.rect_hud_progreso.y + 6))
 
@@ -493,9 +503,18 @@ class PantallaJuego(Pantalla):
             total_ticks = self.momento_pausa - self.motor.tiempo_inicio - self.tiempo_pausado_acumulado
         tiempo_transcurrido = int(max(0, total_ticks) / 1000)
         
-        texto_tiempo = self.motor.fuente.render(f"TIME: {tiempo_transcurrido}s", True, (255, 255, 255))
         pygame.draw.rect(superficie_juego, (20, 15, 10), (self.rect_hud_tiempo.x, self.rect_hud_tiempo.y, self.rect_hud_tiempo.width, self.rect_hud_tiempo.height), border_radius=4)
-        superficie_juego.blit(texto_tiempo, (self.rect_hud_tiempo.x + 10, self.rect_hud_tiempo.y + 6))
+        
+        # Reloj analógico procedimental
+        cx_reloj = self.rect_hud_tiempo.x + 20
+        cy_reloj = self.rect_hud_tiempo.y + 22
+        pygame.draw.circle(superficie_juego, (245, 240, 230), (cx_reloj, cy_reloj), 9)
+        pygame.draw.circle(superficie_juego, (110, 115, 120), (cx_reloj, cy_reloj), 9, 2)
+        pygame.draw.line(superficie_juego, COLOR_NEGRO, (cx_reloj, cy_reloj), (cx_reloj, cy_reloj - 6), 2)
+        pygame.draw.line(superficie_juego, COLOR_NEGRO, (cx_reloj, cy_reloj), (cx_reloj + 4, cy_reloj), 2)
+
+        texto_tiempo = self.motor.fuente.render(f"TIME: {tiempo_transcurrido}s", True, (255, 255, 255))
+        superficie_juego.blit(texto_tiempo, (self.rect_hud_tiempo.x + 36, self.rect_hud_tiempo.y + 6))
 
         # 3. Botón de Pausa
         color_btn_pausa = (60, 65, 70) if self.hover_pausa else (40, 45, 50)
@@ -532,7 +551,15 @@ class PantallaJuego(Pantalla):
         # Tooltips flotantes (sobre la superficie final)
         mx, my = pygame.mouse.get_pos()
         if not self.pausado:
-            if self.hover_progreso:
+            if self.plank_hovered:
+                texto_en = self.plank_hovered.texto
+                from src.traductor import TRADUCCIONES
+                texto_es = TRADUCCIONES.get(texto_en, "Traducción no disponible.")
+                
+                # Mostrar traducción de la frase con la fuente de sistemas limpia
+                tip_frase = BilingualTooltip(self.motor, f"Sentence: {texto_en}", f"Traducción: {texto_es}")
+                tip_frase.dibujar(superficie, mx, my)
+            elif self.hover_progreso:
                 self.tooltip_progreso.dibujar(superficie, mx, my)
             elif self.hover_tiempo:
                 self.tooltip_tiempo.dibujar(superficie, mx, my)
