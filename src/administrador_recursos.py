@@ -55,27 +55,49 @@ class AdministradorRecursos:
                 self._imagenes[nombre] = pygame.image.load(ruta)
             except (pygame.error, FileNotFoundError) as e:
                 print(f"Advertencia: No se pudo cargar {ruta}. Generando recurso dinámico para '{nombre}'...")
-                if nombre == "Boton.png":
-                    # Generar dinámicamente un tablón de madera de 200x50 para botones
+                if nombre == "corazon.png":
+                    # Generar dinámicamente un corazón pixel-art rojo de 32x32 con canal Alfa
+                    surf = pygame.Surface((32, 32), pygame.SRCALPHA)
+                    # Dibujar corazón pixel-art
+                    pygame.draw.circle(surf, (220, 35, 35), (10, 11), 8)
+                    pygame.draw.circle(surf, (220, 35, 35), (22, 11), 8)
+                    pygame.draw.polygon(surf, (220, 35, 35), [(2, 13), (30, 13), (16, 27)])
+                    # Sombra interior del corazón (profundidad)
+                    pygame.draw.circle(surf, (160, 20, 20), (10, 13), 6)
+                    pygame.draw.circle(surf, (160, 20, 20), (22, 13), 6)
+                    pygame.draw.polygon(surf, (160, 20, 20), [(4, 14), (28, 14), (16, 25)])
+                    # Brillo pixel-art blanco
+                    pygame.draw.rect(surf, (255, 255, 255), (7, 7, 4, 4), border_radius=1)
+                    pygame.draw.rect(surf, (255, 255, 255), (19, 7, 4, 4), border_radius=1)
+                    self._imagenes[nombre] = surf
+                elif nombre == "estrella.png":
+                    # Generar una estrella dorada pixel-art de 32x32 con canal Alfa
+                    surf = pygame.Surface((32, 32), pygame.SRCALPHA)
+                    puntos = [
+                        (16, 2), (20, 11), (30, 11), (22, 18),
+                        (25, 28), (16, 22), (7, 28), (10, 18),
+                        (2, 11), (12, 11)
+                    ]
+                    pygame.draw.polygon(surf, (255, 215, 0), puntos) # Dorado
+                    pygame.draw.polygon(surf, (180, 140, 10), puntos, 2) # Borde bronce
+                    # Brillo interior
+                    pygame.draw.circle(surf, (255, 255, 200), (16, 14), 4)
+                    self._imagenes[nombre] = surf
+                elif nombre == "Boton.png":
                     surf = pygame.Surface((200, 50))
-                    # Color madera
                     surf.fill((160, 110, 65))
-                    # Borde madera oscura
                     pygame.draw.rect(surf, (90, 55, 30), (0, 0, 200, 50), 3)
-                    # Remaches metálicos en las esquinas
                     pygame.draw.circle(surf, (80, 80, 80), (8, 8), 3)
                     pygame.draw.circle(surf, (80, 80, 80), (192, 8), 3)
                     pygame.draw.circle(surf, (80, 80, 80), (8, 42), 3)
                     pygame.draw.circle(surf, (80, 80, 80), (192, 42), 3)
                     self._imagenes[nombre] = surf
                 elif nombre == "logo.png" or nombre == "Logo.jpg":
-                    # Logo de repuesto rústico
                     surf = pygame.Surface((320, 320))
                     surf.fill((90, 55, 30))
                     pygame.draw.rect(surf, (160, 110, 65), (10, 10, 300, 300), 5)
                     self._imagenes[nombre] = surf
                 else:
-                    # Superficie vacía genérica de color fucsia
                     surf = pygame.Surface((64, 64))
                     surf.fill((255, 0, 255))
                     self._imagenes[nombre] = surf

@@ -18,8 +18,8 @@ class MotorJuego:
         pygame.init()
         pygame.mixer.init()
 
-        # Configurar pantalla principal y el título oficial de la ventana
-        self.pantalla_principal = pygame.display.set_mode((ANCHO_PANTALLA, ALTO_PANTALLA))
+        # Configurar pantalla principal en Pantalla Completa con escalado automático (FULLSCREEN | SCALED)
+        self.pantalla_principal = pygame.display.set_mode((ANCHO_PANTALLA, ALTO_PANTALLA), pygame.FULLSCREEN | pygame.SCALED)
         pygame.display.set_caption("IndustrialQuest")
 
         # Cargar la tipografía del juego

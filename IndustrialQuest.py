@@ -6,8 +6,9 @@ Ejecuta esta clase para iniciar el videojuego educativo.
 import sys
 import os
 
-# Asegurar que el directorio del script esté en el path de búsqueda de módulos
+# Asegurar que el directorio del script esté en el path de búsqueda de módulos y sea el CWD
 ruta_raiz = os.path.dirname(os.path.abspath(__file__))
+os.chdir(ruta_raiz)
 if ruta_raiz not in sys.path:
     sys.path.insert(0, ruta_raiz)
 
