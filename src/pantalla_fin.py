@@ -115,12 +115,12 @@ class PantallaFin(Pantalla):
         y_stat = self.rect_reporte.top + 95
         for etiqueta, valor in stats:
             # Columna izquierda (Etiqueta)
-            txt_etiqueta = self.motor.fuente.render(etiqueta, True, (80, 80, 95))
+            txt_etiqueta = self.motor.fuente_sistemas.render(etiqueta, True, (80, 80, 95))
             superficie.blit(txt_etiqueta, (self.rect_reporte.left + 45, y_stat))
             
             # Columna derecha (Valor)
             color_val = (40, 130, 40) if (etiqueta == "Work Status:" and self.victoria) else (190, 40, 40) if etiqueta == "Work Status:" else self.color_texto
-            txt_valor = self.motor.fuente.render(valor, True, color_val)
+            txt_valor = self.motor.fuente_sistemas.render(valor, True, color_val)
             superficie.blit(txt_valor, (self.rect_reporte.right - 45 - txt_valor.get_width(), y_stat))
             
             y_stat += 38
