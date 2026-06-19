@@ -770,3 +770,119 @@ class PantallaJuego(Pantalla):
         # After
         r_after = self.motor.fuente.render(after, True, COLOR_NEGRO)
         superficie.blit(r_after, (curr_x, curr_y))
+
+    def _dibujar_decoraciones_fabrica(self, superficie):
+        # Dibujar tuberías metálicas en el fondo (arriba y abajo)
+        pygame.draw.rect(superficie, (75, 80, 85), (0, 70, ANCHO_PANTALLA, 12))
+        pygame.draw.rect(superficie, (45, 50, 55), (0, 72, ANCHO_PANTALLA, 8))
+        # Soportes de tuberías
+        for sx in range(100, ANCHO_PANTALLA, 150):
+            pygame.draw.rect(superficie, (100, 105, 110), (sx, 65, 12, 22))
+            pygame.draw.circle(superficie, (200, 200, 200), (sx + 6, 76), 3)
+
+        # Decoraciones específicas de cada Shift
+        nombre_turno = self.motor.tema_actual
+        if "Shift 1" in nombre_turno or "Level 1" in nombre_turno:
+            # 1. Reception/Warehouse: Piles of logs, pallets, forklift cargo crates
+            # Dibujar troncos de madera apilados en el suelo (y > 480)
+            pygame.draw.rect(superficie, (130, 80, 40), (40, 500, 100, 30), border_radius=6)
+            pygame.draw.circle(superficie, (210, 170, 120), (40, 515), 15)
+            pygame.draw.circle(superficie, (210, 170, 120), (140, 515), 15)
+            pygame.draw.circle(superficie, (130, 80, 40), (40, 515), 15, 2)
+            pygame.draw.circle(superficie, (130, 80, 40), (140, 515), 15, 2)
+            pygame.draw.circle(superficie, (130, 80, 40), (40, 515), 8, 1)
+            pygame.draw.circle(superficie, (130, 80, 40), (140, 515), 8, 1)
+            
+            pygame.draw.rect(superficie, (130, 80, 40), (90, 480, 80, 24), border_radius=4)
+            pygame.draw.circle(superficie, (210, 170, 120), (90, 492), 12)
+            pygame.draw.circle(superficie, (210, 170, 120), (170, 492), 12)
+            pygame.draw.circle(superficie, (130, 80, 40), (90, 492), 12, 2)
+            pygame.draw.circle(superficie, (130, 80, 40), (170, 492), 12, 2)
+
+            # Cajas de inventario
+            pygame.draw.rect(superficie, (160, 110, 65), (280, 490, 50, 45), border_radius=2)
+            pygame.draw.rect(superficie, (90, 55, 30), (280, 490, 50, 45), 2, border_radius=2)
+            pygame.draw.line(superficie, (90, 55, 30), (280, 490), (330, 535), 2)
+            pygame.draw.line(superficie, (90, 55, 30), (330, 490), (280, 535), 2)
+
+            # Letrero de Recepción colgante
+            pygame.draw.line(superficie, (20, 20, 20), (200, 15), (200, 45), 2)
+            pygame.draw.line(superficie, (20, 20, 20), (280, 15), (280, 45), 2)
+            pygame.draw.rect(superficie, (220, 210, 190), (180, 45, 120, 30), border_radius=3)
+            pygame.draw.rect(superficie, (60, 45, 30), (180, 45, 120, 30), 2, border_radius=3)
+            txt_sign = self.motor.fuente_sistemas.render("RECEPTION Z-1", True, (60, 45, 30))
+            superficie.blit(txt_sign, (240 - txt_sign.get_width() // 2, 60 - txt_sign.get_height() // 2))
+
+        elif "Shift 2" in nombre_turno or "Level 2" in nombre_turno:
+            # 2. Sawmill/Production Line: gears, metal exhausts, warning lights
+            pygame.draw.rect(superficie, (90, 95, 100), (60, 470, 30, 70))
+            pygame.draw.rect(superficie, (60, 65, 70), (60, 470, 30, 70), 2)
+            pygame.draw.rect(superficie, (120, 125, 130), (52, 470, 46, 12))
+            
+            # Luz de alerta industrial roja parpadeante
+            ticks = pygame.time.get_ticks()
+            es_brillante = (ticks // 400) % 2 == 0
+            color_luz = (255, 30, 30) if es_brillante else (120, 0, 0)
+            pygame.draw.rect(superficie, (40, 40, 40), (220, 490, 20, 45))
+            pygame.draw.circle(superficie, color_luz, (230, 500), 10)
+            if es_brillante:
+                pygame.draw.circle(superficie, (255, 150, 150), (230, 500), 4)
+
+            # Letrero de Peligro Sierras
+            pygame.draw.line(superficie, (20, 20, 20), (320, 15), (320, 45), 2)
+            pygame.draw.line(superficie, (20, 20, 20), (400, 15), (400, 45), 2)
+            pygame.draw.rect(superficie, (255, 230, 50), (300, 45, 120, 30), border_radius=3)
+            pygame.draw.rect(superficie, (0, 0, 0), (300, 45, 120, 30), 2, border_radius=3)
+            txt_sign = self.motor.fuente_sistemas.render("SAWMILL Z-2", True, (0, 0, 0))
+            superficie.blit(txt_sign, (360 - txt_sign.get_width() // 2, 60 - txt_sign.get_height() // 2))
+
+        elif "Shift 3" in nombre_turno or "Level 3" in nombre_turno:
+            # 3. Assembly Area: workbench, blueprints, tools (hammer, saw), glue bottle
+            pygame.draw.rect(superficie, (120, 75, 45), (40, 490, 140, 45), border_radius=3)
+            pygame.draw.rect(superficie, (70, 40, 20), (40, 490, 140, 45), 3, border_radius=3)
+            pygame.draw.rect(superficie, (50, 50, 50), (40, 535, 12, 45))
+            pygame.draw.rect(superficie, (50, 50, 50), (168, 535, 12, 45))
+            
+            # Martillo
+            pygame.draw.line(superficie, (180, 130, 70), (60, 510), (90, 510), 4)
+            pygame.draw.rect(superficie, (100, 105, 110), (85, 502, 12, 16), border_radius=1)
+            
+            # Silla medio armada
+            pygame.draw.rect(superficie, (190, 130, 80), (240, 490, 30, 30), border_radius=2)
+            pygame.draw.rect(superficie, (120, 75, 45), (240, 490, 30, 30), 2, border_radius=2)
+            pygame.draw.line(superficie, (120, 75, 45), (240, 520), (240, 550), 3)
+            pygame.draw.line(superficie, (120, 75, 45), (270, 520), (270, 550), 3)
+
+            # Letrero de Ensamblaje
+            pygame.draw.line(superficie, (20, 20, 20), (200, 15), (200, 45), 2)
+            pygame.draw.line(superficie, (20, 20, 20), (280, 15), (280, 45), 2)
+            pygame.draw.rect(superficie, (220, 210, 190), (180, 45, 120, 30), border_radius=3)
+            pygame.draw.rect(superficie, (60, 45, 30), (180, 45, 120, 30), 2, border_radius=3)
+            txt_sign = self.motor.fuente_sistemas.render("ASSEMBLY Z-3", True, (60, 45, 30))
+            superficie.blit(txt_sign, (240 - txt_sign.get_width() // 2, 60 - txt_sign.get_height() // 2))
+
+        elif "Shift 4" in nombre_turno or "Level 4" in nombre_turno:
+            # 4. Dispatch/Quality Control: shipping checklist board, wrapped furniture crates, audit calendar
+            pygame.draw.rect(superficie, (205, 160, 115), (40, 480, 60, 60), border_radius=2)
+            pygame.draw.rect(superficie, (110, 80, 45), (40, 480, 60, 60), 2, border_radius=2)
+            pygame.draw.line(superficie, (110, 80, 45), (40, 510), (100, 510), 2)
+            pygame.draw.line(superficie, (110, 80, 45), (70, 480), (70, 540), 2)
+            
+            # Sello de fragilidad
+            pygame.draw.rect(superficie, (180, 40, 40), (55, 495, 10, 12), border_radius=1)
+
+            # Calendario de envíos
+            pygame.draw.rect(superficie, (240, 240, 240), (220, 480, 45, 55), border_radius=2)
+            pygame.draw.rect(superficie, (180, 40, 40), (220, 480, 45, 15), border_radius=2)
+            pygame.draw.rect(superficie, (100, 100, 100), (220, 480, 45, 55), 2, border_radius=2)
+            for rx in range(226, 260, 8):
+                for ry in range(502, 530, 8):
+                    pygame.draw.circle(superficie, (60, 60, 60), (rx, ry), 2)
+            
+            # Letrero de Despacho
+            pygame.draw.line(superficie, (20, 20, 20), (320, 15), (320, 45), 2)
+            pygame.draw.line(superficie, (20, 20, 20), (400, 15), (400, 45), 2)
+            pygame.draw.rect(superficie, (210, 220, 230), (300, 45, 120, 30), border_radius=3)
+            pygame.draw.rect(superficie, (50, 60, 70), (300, 45, 120, 30), 2, border_radius=3)
+            txt_sign = self.motor.fuente_sistemas.render("DISPATCH Z-4", True, (50, 60, 70))
+            superficie.blit(txt_sign, (360 - txt_sign.get_width() // 2, 60 - txt_sign.get_height() // 2))
