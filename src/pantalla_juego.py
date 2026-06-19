@@ -450,6 +450,7 @@ class PantallaJuego(Pantalla):
 
         superficie_juego = pygame.Surface((ANCHO_PANTALLA, ALTO_PANTALLA))
         superficie_juego.blit(self.fondo, (0, 0))
+        self._dibujar_decoraciones_fabrica(superficie_juego)
 
         # Cintas transportadoras estáticas
         for lane_y in LANES_Y:
