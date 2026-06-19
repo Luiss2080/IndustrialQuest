@@ -412,13 +412,32 @@ class PantallaJuego(Pantalla):
                     self.motor.cambiar_pantalla(PantallaFin(self.motor, victoria=True))
                     return
 
-        # Detección de hovers en HUD
+        # Rotar música automáticamente cada 90 segundos
+        ahora = pygame.time.get_ticks()
+        if ahora - self.tiempo_ultima_musica > self.tiempo_cambio_musica:
+            self.tiempo_ultima_musica = ahora
+            self.sonido_nivel.stop()
+            self.indice_musica_actual = (self.indice_musica_actual + 1) % 4
+            nombre_audio = f"Stage{self.indice_musica_actual + 1}.wav"
+            self.sonido_nivel = self.motor.recursos.obtener_sonido(nombre_audio)
+            self.sonido_nivel.set_volume(self.motor.volumen_musica)
+            self.sonido_nivel.play(-1)
+            self.motor.reproducir_sonido("Correcta.wav")
+
+        # Detección de hovers en HUD y tablones de frases
         pos_mouse = pygame.mouse.get_pos()
         self.hover_progreso = self.rect_hud_progreso.collidepoint(pos_mouse)
         self.hover_tiempo = self.rect_hud_tiempo.collidepoint(pos_mouse)
         self.hover_pausa = self.rect_btn_pausa.collidepoint(pos_mouse)
         self.hover_vidas = self.rect_hud_vidas.collidepoint(pos_mouse)
         self.hover_input = self.rect_input_box.collidepoint(pos_mouse)
+
+        self.plank_hovered = None
+        for frase in self.motor.frases_en_pantalla:
+            r_tablon = self.obtener_rect_tablon(frase)
+            if r_tablon.collidepoint(pos_mouse):
+                self.plank_hovered = frase
+                break
 
     def dibujar(self, superficie):
         # Calcular sacudida
