@@ -1,11 +1,119 @@
 {
     "logs": [
         {
-            "timestamp": "2026-06-19 18:46",
+            "timestamp": "2026-06-24 20:11",
             "nivel": "Level 1: Reception Area",
             "score": 0,
             "accuracy": 100.0,
+            "time_taken": 11,
+            "wpm": 0,
+            "status": "FAILED"
+        },
+        {
+            "timestamp": "2026-06-24 20:12",
+            "nivel": "Level 2: Production Area",
+            "score": 0,
+            "accuracy": 100.0,
+            "time_taken": 9,
+            "wpm": 0,
+            "status": "FAILED"
+        },
+        {
+            "timestamp": "2026-06-24 20:12",
+            "nivel": "Level 3: Assembly Area",
+            "score": 0,
+            "accuracy": 100.0,
+            "time_taken": 9,
+            "wpm": 0,
+            "status": "FAILED"
+        },
+        {
+            "timestamp": "2026-06-24 20:12",
+            "nivel": "Level 4: Quality Control & Dispatch",
+            "score": 0,
+            "accuracy": 100.0,
             "time_taken": 4,
+            "wpm": 0,
+            "status": "FAILED"
+        },
+        {
+            "timestamp": "2026-06-24 20:13",
+            "nivel": "Level 1: Reception Area",
+            "score": 0,
+            "accuracy": 100.0,
+            "time_taken": 28,
+            "wpm": 0,
+            "status": "FAILED"
+        },
+        {
+            "timestamp": "2026-06-24 20:14",
+            "nivel": "Level 1: Reception Area",
+            "score": 0,
+            "accuracy": 0.0,
+            "time_taken": 67,
+            "wpm": 0,
+            "status": "FAILED"
+        },
+        {
+            "timestamp": "2026-06-24 20:15",
+            "nivel": "Level 1: Reception Area",
+            "score": 0,
+            "accuracy": 0.0,
+            "time_taken": 24,
+            "wpm": 0,
+            "status": "FAILED"
+        },
+        {
+            "timestamp": "2026-06-24 20:16",
+            "nivel": "Level 1: Reception Area",
+            "score": 0,
+            "accuracy": 100.0,
+            "time_taken": 2,
+            "wpm": 0,
+            "status": "FAILED"
+        },
+        {
+            "timestamp": "2026-06-24 20:16",
+            "nivel": "Level 1: Reception Area",
+            "score": 0,
+            "accuracy": 100.0,
+            "time_taken": 2,
+            "wpm": 0,
+            "status": "FAILED"
+        },
+        {
+            "timestamp": "2026-06-24 20:17",
+            "nivel": "Level 1: Reception Area",
+            "score": 0,
+            "accuracy": 100.0,
+            "time_taken": 3,
+            "wpm": 0,
+            "status": "FAILED"
+        },
+        {
+            "timestamp": "2026-06-24 20:18",
+            "nivel": "Level 1: Reception Area",
+            "score": 0,
+            "accuracy": 100.0,
+            "time_taken": 31,
+            "wpm": 0,
+            "status": "FAILED"
+        },
+        {
+            "timestamp": "2026-06-24 20:18",
+            "nivel": "Level 1: Reception Area",
+            "score": 0,
+            "accuracy": 100.0,
+            "time_taken": 12,
+            "wpm": 0,
+            "status": "FAILED"
+        },
+        {
+            "timestamp": "2026-06-24 20:25",
+            "nivel": "Level 3: Assembly Area",
+            "score": 0,
+            "accuracy": 100.0,
+            "time_taken": 1,
             "wpm": 0,
             "status": "FAILED"
         }

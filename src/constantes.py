@@ -6,7 +6,7 @@ import os
 
 # Dimensiones de la pantalla de juego
 ANCHO_PANTALLA = 800
-ALTO_PANTALLA = 600
+ALTO_PANTALLA = 610
 
 # Definición de colores principales (formato RGB)
 COLOR_BLANCO = (255, 255, 255)
