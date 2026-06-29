@@ -372,6 +372,17 @@ class PantallaJuego(Pantalla):
         self.motor.guardar_datos()
 
     def actualizar(self, dt):
+        if self.mostrar_bienvenida:
+            pos_mouse = pygame.mouse.get_pos()
+            self.hover_understood = self.btn_bienvenida_understood.collidepoint(pos_mouse)
+            self.hover_progreso = False
+            self.hover_tiempo = False
+            self.hover_pausa = False
+            self.hover_vidas = False
+            self.hover_input = False
+            self.plank_hovered = None
+            return
+
         if self.pausado:
             return
 
