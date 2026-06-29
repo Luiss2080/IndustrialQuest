@@ -64,7 +64,7 @@ class PantallaNiveles(Pantalla):
             "Level 2: Production Area": {
                 "title": "Shift 2: Production",
                 "theme": "Wood Sawmill",
-                "diff": "Medium",
+                "Present": "Medium",
                 "diff_color": (160, 105, 15)
             },
             "Level 3: Assembly Area": {
