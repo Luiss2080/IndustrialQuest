@@ -58,7 +58,7 @@ class PantallaNiveles(Pantalla):
             "Level 1: Reception Area": {
                 "title": "Shift 1: Reception",
                 "theme": "Cargo Audit",
-                "diff": "Easy",
+                "Verb To Be": "(Present & Past)",
                 "diff_color": (35, 140, 30)
             },
             "Level 2: Production Area": {
