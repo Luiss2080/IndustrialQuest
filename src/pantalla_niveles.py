@@ -70,7 +70,7 @@ class PantallaNiveles(Pantalla):
             "Level 3: Assembly Area": {
                 "title": "Shift 3: Assembly",
                 "theme": "Furniture Build",
-                "diff": "Hard",
+                "Present": "Simple",
                 "diff_color": (190, 75, 15)
             },
             "Level 4: Quality Control & Dispatch": {
