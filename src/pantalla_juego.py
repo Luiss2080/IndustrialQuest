@@ -779,7 +779,7 @@ class PantallaJuego(Pantalla):
         rect_ab_d = self.btn_pausa_abandon.copy()
         rect_ab_d.x += offset_ab
         rect_ab_d.y += offset_ab
-        superficie.blit(self.boton_img, rect_ab_d)
+        superficie.blit(self.boton_abandon_img, rect_ab_d)
         txt_ab = self.motor.fuente.render("Abandon Shift", True, COLOR_NEGRO)
         superficie.blit(txt_ab, (rect_ab_d.centerx - txt_ab.get_width() // 2, rect_ab_d.centery - txt_ab.get_height() // 2))
 
