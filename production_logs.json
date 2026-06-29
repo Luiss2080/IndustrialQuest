@@ -134,6 +134,33 @@
             "time_taken": 2,
             "wpm": 0,
             "status": "FAILED"
+        },
+        {
+            "timestamp": "2026-06-29 13:12",
+            "nivel": "Level 1: Reception Area",
+            "score": 0,
+            "accuracy": 100.0,
+            "time_taken": 2,
+            "wpm": 0,
+            "status": "FAILED"
+        },
+        {
+            "timestamp": "2026-06-29 13:12",
+            "nivel": "Level 2: Production Area",
+            "score": 0,
+            "accuracy": 100.0,
+            "time_taken": 1,
+            "wpm": 0,
+            "status": "FAILED"
+        },
+        {
+            "timestamp": "2026-06-29 13:12",
+            "nivel": "Level 4: Quality Control & Dispatch",
+            "score": 0,
+            "accuracy": 100.0,
+            "time_taken": 1,
+            "wpm": 0,
+            "status": "FAILED"
         }
     ],
     "volumen_musica": 0.4,
