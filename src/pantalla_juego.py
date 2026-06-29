@@ -61,6 +61,7 @@ class PantallaJuego(Pantalla):
         self.estrella_icon = pygame.transform.scale(self.estrella_icon, (24, 24))
 
         self.boton_img = self.motor.recursos.obtener_imagen("Boton.png")
+        self.boton_abandon_img = pygame.transform.scale(self.boton_img, (380, 46))
         self.boton_img = pygame.transform.scale(self.boton_img, (180, 42))
 
         # Inicializar música de fondo del nivel en bucle (Playlist aleatoria)
