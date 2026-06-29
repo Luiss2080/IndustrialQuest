@@ -609,6 +609,8 @@ class PantallaJuego(Pantalla):
         # 5. Dibujar Menú de Pausa si está activo
         if self.pausado:
             self._dibujar_menu_pausa(superficie_juego)
+        elif self.mostrar_bienvenida:
+            self._dibujar_modal_bienvenida(superficie_juego)
 
         # Volcar superficie
         superficie.fill((0, 0, 0))
@@ -616,7 +618,12 @@ class PantallaJuego(Pantalla):
 
         # Tooltips flotantes (sobre la superficie final)
         mx, my = pygame.mouse.get_pos()
-        if not self.pausado:
+        if self.mostrar_bienvenida:
+            if self.btn_bienvenida_understood.collidepoint((mx, my)):
+                self.tooltip_understood.dibujar(superficie, mx, my)
+            elif self.rect_bienvenida_panel.collidepoint((mx, my)):
+                self.tooltip_bienvenida_panel.dibujar(superficie, mx, my)
+        elif not self.pausado:
             if self.plank_hovered:
                 texto_en = self.plank_hovered.texto
                 from src.traductor import TRADUCCIONES
