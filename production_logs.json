@@ -116,6 +116,15 @@
             "time_taken": 1,
             "wpm": 0,
             "status": "FAILED"
+        },
+        {
+            "timestamp": "2026-06-29 12:49",
+            "nivel": "Level 1: Reception Area",
+            "score": 0,
+            "accuracy": 100.0,
+            "time_taken": 6,
+            "wpm": 0,
+            "status": "FAILED"
         }
     ],
     "volumen_musica": 0.4,
