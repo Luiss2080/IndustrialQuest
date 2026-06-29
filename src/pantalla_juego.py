@@ -111,7 +111,7 @@ class PantallaJuego(Pantalla):
         self.rect_input_box = pygame.Rect(ANCHO_PANTALLA // 2 - 180, ALTO_PANTALLA - 80, 360, 50)
 
         # Botones y elementos del Menú de Pausa Rediseñados (Tablero de madera y deslizadores)
-        self.rect_pausa_panel = pygame.Rect(180, 70, 440, 460)
+        self.rect_pausa_panel = pygame.Rect(160, 70, 480, 460)
         self.btn_pausa_resume = pygame.Rect(210, 140, 380, 46)
         self.btn_pausa_restart = pygame.Rect(210, 200, 380, 46)
         
