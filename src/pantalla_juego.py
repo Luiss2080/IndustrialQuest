@@ -62,6 +62,7 @@ class PantallaJuego(Pantalla):
 
         self.boton_img = self.motor.recursos.obtener_imagen("Boton.png")
         self.boton_abandon_img = pygame.transform.scale(self.boton_img, (380, 46))
+        self.boton_understood_img = pygame.transform.scale(self.boton_img, (200, 46))
         self.boton_img = pygame.transform.scale(self.boton_img, (180, 42))
 
         # Inicializar música de fondo del nivel en bucle (Playlist aleatoria)
@@ -138,6 +139,14 @@ class PantallaJuego(Pantalla):
         self.hover_pausa = False
         self.hover_vidas = False
         self.hover_input = False
+
+        # Welcome modal state
+        self.mostrar_bienvenida = True
+        self.hover_understood = False
+        self.rect_bienvenida_panel = pygame.Rect(120, 80, 560, 440)
+        self.btn_bienvenida_understood = pygame.Rect(300, 445, 200, 46)
+        self.tooltip_understood = BilingualTooltip(self.motor, "Understood! Start the shift.", "¡Entendido! Comenzar el turno de trabajo.")
+        self.tooltip_bienvenida_panel = BilingualTooltip(self.motor, "Welcome to this shift! Read the mission and rules before starting.", "¡Bienvenido a este turno! Lee la misión y las reglas antes de comenzar.")
 
     def generar_nueva_frase(self):
         tema = self.motor.tema_actual
