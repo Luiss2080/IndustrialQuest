@@ -219,6 +219,8 @@ class PantallaJuego(Pantalla):
     def manejar_eventos(self, eventos):
         for evento in eventos:
             if evento.type == pygame.KEYDOWN:
+                if self.mostrar_bienvenida:
+                    continue
                 if evento.key == pygame.K_ESCAPE:
                     if self.pausado:
                         self._reanudar_juego()
@@ -252,6 +254,13 @@ class PantallaJuego(Pantalla):
                                 self.motor.pulsaciones_incorrectas += 1
 
             elif evento.type == pygame.MOUSEBUTTONDOWN:
+                if self.mostrar_bienvenida:
+                    if evento.button == 1 and self.btn_bienvenida_understood.collidepoint(evento.pos):
+                        self.motor.reproducir_sonido("Correcta.wav")
+                        self.mostrar_bienvenida = False
+                        self.motor.tiempo_inicio = pygame.time.get_ticks()
+                        self.tiempo_ultima_musica = pygame.time.get_ticks()
+                    continue
                 if evento.button == 1: # Clic izquierdo
                     # Si está pausado, manejar interfaz del menú de pausa
                     if self.pausado:
