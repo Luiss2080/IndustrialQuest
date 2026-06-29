@@ -819,6 +819,118 @@ class PantallaJuego(Pantalla):
         txt_ab = self.motor.fuente.render("Abandon Shift", True, COLOR_NEGRO)
         superficie.blit(txt_ab, (rect_ab_d.centerx - txt_ab.get_width() // 2, rect_ab_d.centery - txt_ab.get_height() // 2))
 
+    def _dibujar_modal_bienvenida(self, superficie):
+        """Dibuja el panel de bienvenida con la misión y reglas del nivel al inicio."""
+        # Capa translúcida oscura sobre el juego
+        overlay = pygame.Surface((ANCHO_PANTALLA, ALTO_PANTALLA), pygame.SRCALPHA)
+        overlay.fill((10, 10, 15, 180))
+        superficie.blit(overlay, (0, 0))
+
+        # 1. Panel (Madera de pino claro con bordes rústicos y clavos en las esquinas)
+        rect_p = self.rect_bienvenida_panel
+        # Sombra
+        pygame.draw.rect(superficie, (10, 7, 5), (rect_p.x + 5, rect_p.y + 5, rect_p.width, rect_p.height), border_radius=8)
+        # Relleno de madera de pino claro
+        color_madera_pino = (245, 230, 205)
+        pygame.draw.rect(superficie, color_madera_pino, rect_p, border_radius=8)
+        # Borde de acero oscuro
+        pygame.draw.rect(superficie, (60, 35, 15), rect_p, 4, border_radius=8)
+
+        # Clavos decorativos de bronce/cobre en las esquinas del panel
+        margen_clavo = 12
+        pos_clavos = [
+            (rect_p.left + margen_clavo, rect_p.top + margen_clavo),
+            (rect_p.right - margen_clavo, rect_p.top + margen_clavo),
+            (rect_p.left + margen_clavo, rect_p.bottom - margen_clavo),
+            (rect_p.right - margen_clavo, rect_p.bottom - margen_clavo)
+        ]
+        for cx, cy in pos_clavos:
+            pygame.draw.circle(superficie, (90, 50, 20), (cx, cy), 4)
+
+        # Título centrado (LEVEL NAME)
+        txt_titulo = self.motor.fuente_sistemas_grande.render(self.motor.tema_actual.upper(), True, (120, 30, 10))
+        tx = rect_p.centerx - txt_titulo.get_width() // 2
+        superficie.blit(txt_titulo, (tx, rect_p.top + 20))
+
+        # Línea decorativa divisoria
+        pygame.draw.line(superficie, (160, 120, 80), (rect_p.left + 30, rect_p.top + 55), (rect_p.right - 30, rect_p.top + 55), 2)
+
+        # Cargar los datos del tema
+        from src.datos_juego import TEMAS
+        tema_info = TEMAS.get(self.motor.tema_actual, {})
+        historia = tema_info.get("historia", "")
+        regla = tema_info.get("regla", "")
+
+        def wrap_texto(texto, fuente, ancho_max):
+            palabras = texto.split(' ')
+            lineas = []
+            linea_actual = ""
+            for palabra in palabras:
+                test_linea = linea_actual + palabra + " "
+                if fuente.size(test_linea)[0] <= ancho_max:
+                    linea_actual = test_linea
+                else:
+                    if linea_actual:
+                        lineas.append(linea_actual.strip())
+                    linea_actual = palabra + " "
+            if linea_actual:
+                lineas.append(linea_actual.strip())
+            return lineas
+
+        # Y inicial de dibujo
+        curr_y = rect_p.top + 75
+
+        # --- Sección 1: Mission ---
+        txt_mission_hdr = self.motor.fuente_sistemas_grande.render("MISSION", True, (120, 30, 10))
+        superficie.blit(txt_mission_hdr, (rect_p.left + 35, curr_y))
+        curr_y += 30
+
+        lineas_historia = wrap_texto(historia, self.motor.fuente_sistemas, rect_p.width - 70)
+        for linea in lineas_historia:
+            txt_linea = self.motor.fuente_sistemas.render(linea, True, (65, 50, 40))
+            superficie.blit(txt_linea, (rect_p.left + 35, curr_y))
+            curr_y += 22
+
+        curr_y += 15  # Separación
+
+        # --- Sección 2: Grammar Target ---
+        txt_grammar_hdr = self.motor.fuente_sistemas_grande.render("GRAMMAR FOCUS", True, (120, 30, 10))
+        superficie.blit(txt_grammar_hdr, (rect_p.left + 35, curr_y))
+        curr_y += 30
+
+        lineas_regla = wrap_texto(regla, self.motor.fuente_sistemas, rect_p.width - 70)
+        for linea in lineas_regla:
+            txt_linea = self.motor.fuente_sistemas.render(linea, True, (65, 50, 40))
+            superficie.blit(txt_linea, (rect_p.left + 35, curr_y))
+            curr_y += 22
+
+        curr_y += 15  # Separación
+
+        # --- Sección 3: Instructions ---
+        txt_inst_hdr = self.motor.fuente_sistemas_grande.render("INSTRUCTIONS", True, (120, 30, 10))
+        superficie.blit(txt_inst_hdr, (rect_p.left + 35, curr_y))
+        curr_y += 30
+
+        txt_inst_val = "Type the correct word(s) to complete the planks before they hit the saw!"
+        txt_linea_inst = self.motor.fuente_sistemas.render(txt_inst_val, True, (65, 50, 40))
+        superficie.blit(txt_linea_inst, (rect_p.left + 35, curr_y))
+
+        # --- Botón "Understood" ---
+        offset = 2 if self.hover_understood else 0
+        rect_btn_d = self.btn_bienvenida_understood.copy()
+        rect_btn_d.x += offset
+        rect_btn_d.y += offset
+
+        # Sombra del botón
+        pygame.draw.rect(superficie, (10, 7, 5), (self.btn_bienvenida_understood.x + 3, self.btn_bienvenida_understood.y + 3, self.btn_bienvenida_understood.width, self.btn_bienvenida_understood.height), border_radius=4)
+
+        # Dibujar imagen del botón
+        superficie.blit(self.boton_understood_img, rect_btn_d)
+
+        # Centrar texto "Understood"
+        txt_und = self.motor.fuente.render("Understood", True, COLOR_NEGRO)
+        superficie.blit(txt_und, (rect_btn_d.centerx - txt_und.get_width() // 2, rect_btn_d.centery - txt_und.get_height() // 2))
+
     def _dibujar_sierra_giratoria(self, superficie, cx, cy, angulo):
         import math
         pygame.draw.circle(superficie, (100, 105, 110), (cx, cy), 32)
