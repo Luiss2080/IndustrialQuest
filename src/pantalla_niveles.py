@@ -276,11 +276,14 @@ class PantallaNiveles(Pantalla):
             txt_tematica = self.motor.fuente_sistemas.render(f"Zone: {detalles['theme']}", True, self.color_texto_desc)
             superficie.blit(txt_tematica, (cx - txt_tematica.get_width() // 2, rect_dibujo.y + 60))
 
-            # 3. Dificultad
-            diff_label = "Difficulty: "
+            # 3. Dificultad / Tema Gramatical
+            topic_key = next((k for k in detalles.keys() if k not in ("title", "theme", "diff_color")), "Difficulty")
+            topic_val = detalles[topic_key]
+            
+            diff_label = f"{topic_key}: "
             w_lbl = self.motor.fuente_sistemas.size(diff_label)[0]
             txt_diff_lbl = self.motor.fuente_sistemas.render(diff_label, True, self.color_texto_desc)
-            txt_diff_val = self.motor.fuente_sistemas.render(detalles["diff"], True, detalles["diff_color"])
+            txt_diff_val = self.motor.fuente_sistemas.render(topic_val, True, detalles["diff_color"])
             
             total_diff_w = w_lbl + txt_diff_val.get_width()
             pos_x_lbl = cx - total_diff_w // 2
