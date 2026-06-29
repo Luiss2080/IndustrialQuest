@@ -76,7 +76,7 @@ class PantallaNiveles(Pantalla):
             "Level 4: Quality Control & Dispatch": {
                 "title": "Shift 4: Dispatch",
                 "theme": "Final Shipment Audit",
-                "Mixed Grammar": "Expert",
+                "Mixed Grammar": "Review",
                 "diff_color": (210, 25, 25)
             }
         }
