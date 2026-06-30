@@ -161,6 +161,42 @@
             "time_taken": 1,
             "wpm": 0,
             "status": "FAILED"
+        },
+        {
+            "timestamp": "2026-06-30 15:52",
+            "nivel": "Level 1: Reception Area",
+            "score": 0,
+            "accuracy": 100.0,
+            "time_taken": 8,
+            "wpm": 0,
+            "status": "FAILED"
+        },
+        {
+            "timestamp": "2026-06-30 15:52",
+            "nivel": "Level 2: Production Area",
+            "score": 0,
+            "accuracy": 100.0,
+            "time_taken": 1,
+            "wpm": 0,
+            "status": "FAILED"
+        },
+        {
+            "timestamp": "2026-06-30 15:52",
+            "nivel": "Level 3: Assembly Area",
+            "score": 0,
+            "accuracy": 100.0,
+            "time_taken": 1,
+            "wpm": 0,
+            "status": "FAILED"
+        },
+        {
+            "timestamp": "2026-06-30 15:53",
+            "nivel": "Level 4: Quality Control & Dispatch",
+            "score": 0,
+            "accuracy": 100.0,
+            "time_taken": 1,
+            "wpm": 0,
+            "status": "FAILED"
         }
     ],
     "volumen_musica": 0.4,
