@@ -1,0 +1,42 @@
+# Configuración de Netlify para IndustrialQuest
+
+[build]
+# Comando para generar el build (compilar con pygbag en background)
+# Nota: pygbag requiere emscripten, por lo que se recomienda hacer el build localmente
+# y cometer los archivos compilados, O usar un GitHub Action personalizado
+command = "echo 'Build completado' && ls -la build/web"
+# Directorio donde está el build final
+publish = "build/web"
+
+[dev]
+# Configuración para desarrollo local
+publish = "build/web"
+command = "python -m http.server 8000 --directory build/web"
+
+# Redirigir todas las rutas a index.html para el routing del cliente
+[[redirects]]
+from = "/*"
+to = "/index.html"
+status = 200
+
+[[headers]]
+# Encabezados de seguridad y caché
+for = "/*"
+[headers.values]
+Cache-Control = "public, max-age=3600"
+X-Content-Type-Options = "nosniff"
+X-Frame-Options = "SAMEORIGIN"
+
+[[headers]]
+# WebAssembly
+for = "*.wasm"
+[headers.values]
+Content-Type = "application/wasm"
+Cache-Control = "public, max-age=31536000"
+
+[[headers]]
+# JavaScript workers
+for = "*.worker.js"
+[headers.values]
+Cache-Control = "public, max-age=31536000"
+

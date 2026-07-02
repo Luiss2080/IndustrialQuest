@@ -6,6 +6,7 @@ import sys
 import pygame
 from src.constantes import ANCHO_PANTALLA, ALTO_PANTALLA, COLOR_AZUL, RUTA_FUENTE, TAMAÑO_FUENTE
 from src.administrador_recursos import AdministradorRecursos
+from src.almacenamiento import AlmacenamientoPersistente
 
 class MotorJuego:
     """
@@ -39,13 +40,15 @@ class MotorJuego:
         # Inicializar el administrador de recursos (imágenes y sonidos en caché)
         self.recursos = AdministradorRecursos()
 
+        # Inicializar sistema de persistencia (compatible con navegador)
+        self.almacenamiento = AlmacenamientoPersistente()
+
         # Configuración persistente y logs
-        self.historico_logs = []
-        self.volumen_musica = 0.5
-        self.volumen_sfx = 0.7
-        self.velocidad_ajustada = 1.0
-        self.niveles_completados = []
-        self.cargar_datos()
+        self.historico_logs = self.almacenamiento.obtener("logs", [])
+        self.volumen_musica = self.almacenamiento.obtener("volumen_musica", 0.5)
+        self.volumen_sfx = self.almacenamiento.obtener("volumen_sfx", 0.7)
+        self.velocidad_ajustada = self.almacenamiento.obtener("velocidad_ajustada", 1.0)
+        self.niveles_completados = self.almacenamiento.obtener("niveles_completados", [])
 
         # Inicialización del estado y estadísticas globales compartidas
         self.puntuacion = 0
@@ -66,35 +69,17 @@ class MotorJuego:
         self.corriendo = True
 
     def cargar_datos(self):
-        import json
-        import os
-        self.ruta_datos = "production_logs.json"
-        if os.path.exists(self.ruta_datos):
-            try:
-                with open(self.ruta_datos, "r", encoding="utf-8") as f:
-                    datos = json.load(f)
-                    self.historico_logs = datos.get("logs", [])
-                    self.volumen_musica = datos.get("volumen_musica", 0.5)
-                    self.volumen_sfx = datos.get("volumen_sfx", 0.7)
-                    self.velocidad_ajustada = datos.get("velocidad_ajustada", 1.0)
-                    self.niveles_completados = datos.get("niveles_completados", [])
-            except Exception as e:
-                print(f"Error al cargar logs: {e}")
+        """Carga datos del almacenamiento persistente (heredado, ya no usado)"""
+        # Ahora la carga se realiza en __init__ con AlmacenamientoPersistente
+        pass
 
     def guardar_datos(self):
-        import json
-        datos = {
-            "logs": self.historico_logs,
-            "volumen_musica": self.volumen_musica,
-            "volumen_sfx": self.volumen_sfx,
-            "velocidad_ajustada": self.velocidad_ajustada,
-            "niveles_completados": self.niveles_completados
-        }
-        try:
-            with open("production_logs.json", "w", encoding="utf-8") as f:
-                json.dump(datos, f, indent=4, ensure_ascii=False)
-        except Exception as e:
-            print(f"Error al guardar logs: {e}")
+        """Guarda los datos actuales en el almacenamiento persistente"""
+        self.almacenamiento.establecer("logs", self.historico_logs)
+        self.almacenamiento.establecer("volumen_musica", self.volumen_musica)
+        self.almacenamiento.establecer("volumen_sfx", self.volumen_sfx)
+        self.almacenamiento.establecer("velocidad_ajustada", self.velocidad_ajustada)
+        self.almacenamiento.establecer("niveles_completados", self.niveles_completados)
 
     def reproducir_sonido(self, nombre):
         sonido = self.recursos.obtener_sonido(nombre)

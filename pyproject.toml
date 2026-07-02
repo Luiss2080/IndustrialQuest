@@ -1,0 +1,21 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "IndustrialQuest"
+version = "1.0.0"
+description = "Educational game to learn English grammar through typing"
+authors = [{name = "IndustrialQuest Team"}]
+license = {text = "MIT"}
+
+[tool.pygbag]
+title = "IndustrialQuest"
+build_dir = "build/web"
+debug = false
+# Recursos que deben incluirse en el build
+include = [
+    "src/",
+    "recursos/",
+    "fonts/"
+]

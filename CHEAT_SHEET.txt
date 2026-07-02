@@ -1,0 +1,185 @@
+╔═══════════════════════════════════════════════════════════════════════════════╗
+║                                                                               ║
+║    🎮 INDUSTRIAL QUEST - HOJA DE TRUCOS (CHEAT SHEET)                        ║
+║                                                                               ║
+╚═══════════════════════════════════════════════════════════════════════════════╝
+
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃ 1️⃣  ANTES DE DEPLOYAR                                                       ┃
+┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+
+  Verifica que todo esté correcto:
+  
+  $ python verify_deploy.py
+  
+  ✅ Debe mostrar: "✅ ¡Todo está listo para deployar!"
+
+
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃ 2️⃣  INICIALIZAR GIT                                                         ┃
+┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+
+  $ cd c:\laragon\www\IndustrialQuest
+  
+  $ git init
+  
+  $ git add .
+  
+  $ git commit -m "Industrial Quest web version"
+
+
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃ 3️⃣  CREAR REPOSITORIO EN GITHUB                                             ┃
+┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+
+  1. Abre: https://github.com/new
+  2. Nombre: IndustrialQuest
+  3. Descripción: Educational typing game
+  4. Click: Create repository
+
+
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃ 4️⃣  SUBIR A GITHUB                                                          ┃
+┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+
+  $ git remote add origin https://github.com/TU_USUARIO/IndustrialQuest.git
+  
+  $ git branch -M main
+  
+  $ git push -u origin main
+  
+  ⚠️  Ingresa credenciales GitHub cuando pida
+
+
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃ 5️⃣  CONECTAR CON NETLIFY                                                    ┃
+┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+
+  1. Ve a: https://app.netlify.com
+  2. Sign up → Continue with GitHub
+  3. Autoriza Netlify
+  4. Add new site → Import existing project
+  5. Selecciona: IndustrialQuest
+  6. Deploy site ✅
+
+
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃ 6️⃣  ESPERAR BUILD                                                           ┃
+┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+
+  ⏱️  Primera vez: 10-30 minutos (compila con emscripten)
+  ⏱️  Siguientes: 2-5 minutos (caché)
+  
+  Visualiza progreso en: Netlify Dashboard → Deployments → Latest
+  
+  ✅ Estado final: "Published"
+
+
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃ 🎉 ¡LISTO!                                                                   ┃
+┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+
+  Tu URL será: https://[tu-nombre].netlify.app
+  
+  Comparte: "¡Juega a IndustrialQuest!" + URL
+
+
+╔═══════════════════════════════════════════════════════════════════════════════╗
+║                             COMANDOS ÚTILES                                  ║
+╚═══════════════════════════════════════════════════════════════════════════════╝
+
+  Verificar proyecto:
+  $ python verify_deploy.py
+
+  Compilar localmente (opcional):
+  $ python build.bat
+
+  Probar en navegador (después de build):
+  $ python -m http.server 8000 --directory build\web
+  → Abre: http://localhost:8000
+
+  Ver estado del juego original:
+  $ python IndustrialQuest.py
+
+  Hacer push después de cambios:
+  $ git add .
+  $ git commit -m "Descripción del cambio"
+  $ git push origin main
+
+
+╔═══════════════════════════════════════════════════════════════════════════════╗
+║                        SOLUCIÓN DE PROBLEMAS                                 ║
+╚═══════════════════════════════════════════════════════════════════════════════╝
+
+  ❌ "GitHub auth failed"
+     → Usa Personal Access Token en lugar de contraseña
+     → GitHub → Settings → Developer settings → Personal access tokens
+
+  ❌ "Build timeout en Netlify"
+     → Normal la primera vez
+     → Espera 30 minutos máximo
+
+  ❌ "No veo mi URL en Netlify"
+     → Actualiza la página (F5)
+     → Revisa tab "Deployments"
+
+  ❌ "Quiero deshacer cambios"
+     $ git reset --hard HEAD~1
+     $ git push -f origin main
+
+  ❌ "¿Cómo actualizo después?"
+     1. Haz cambios locales
+     2. git add .
+     3. git commit -m "Descripción"
+     4. git push origin main
+     5. Netlify recompila automáticamente
+
+
+╔═══════════════════════════════════════════════════════════════════════════════╗
+║                          ARCHIVOS IMPORTANTES                                ║
+╚═══════════════════════════════════════════════════════════════════════════════╝
+
+  📄 INSTRUCCIONES_FINALES.md   ← LEE PRIMERO (esta página en detalle)
+  📄 QUICKSTART.md               ← Guía rápida
+  📄 DEPLOY.md                   ← Guía completa con troubleshooting
+  📄 README_WEB.md               ← Cómo funciona técnicamente
+  📄 CHECKLIST_DEPLOYMENT.txt   ← Verificación
+  📄 RESUMEN_SETUP.txt           ← Qué se hizo
+
+
+╔═══════════════════════════════════════════════════════════════════════════════╗
+║                           CARACTERÍSTICAS                                    ║
+╚═══════════════════════════════════════════════════════════════════════════════╝
+
+  ✅ Funciona en navegadores (Chrome, Firefox, Safari, Edge)
+  ✅ Juega en PC, tablet, móvil
+  ✅ Guarda progreso automáticamente
+  ✅ Offline después de primer load
+  ✅ GRATIS: Sin límites de usuarios
+  ✅ GRATIS: Dominio .netlify.app
+  ✅ HTTPS automático
+  ✅ CDN global (rápido en cualquier país)
+  ✅ GitHub Actions compila automáticamente
+  ✅ Deploy en 30 segundos con cada push
+
+
+╔═══════════════════════════════════════════════════════════════════════════════╗
+║                          TIEMPO ESTIMADO                                     ║
+╚═══════════════════════════════════════════════════════════════════════════════╝
+
+  Setup Git:           2 minutos
+  Crear GitHub repo:   2 minutos
+  Push a GitHub:       2 minutos
+  Conectar Netlify:    2 minutos
+  Primer build:       30 minutos
+  ─────────────────────────────
+  TOTAL:             38 minutos
+
+
+╔═══════════════════════════════════════════════════════════════════════════════╗
+║                                                                               ║
+║  🚀 SIGUE LOS PASOS ARRIBA Y ¡LISTO!                                          ║
+║                                                                               ║
+║  Tu juego educativo ahora es accesible para el mundo entero.                  ║
+║                                                                               ║
+╚═══════════════════════════════════════════════════════════════════════════════╝
